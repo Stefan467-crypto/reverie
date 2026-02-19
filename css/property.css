@@ -47,7 +47,7 @@ body {
 /* IMPORTANT: overflow hidden ca overlay-ul să stea fix peste imagine */
 .gallery-image-container {
     position: relative;
-    width: clamp(100px, 90vw, 600px);
+    width: clamp(280px, 90vw, 600px);
     border-radius: 16px;
     overflow: hidden;
     align-self: center;
@@ -80,7 +80,7 @@ body {
     background-position: center;
 
     /* nu foarte mare */
-    background-size: min(45%, 320px);
+    background-size: min(45%, 200px);
 
     /* clar vizibil */
     opacity: 0.78;
@@ -154,15 +154,15 @@ body {
 /* Thumbs */
 .gallery-thumbs {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(4, 72px);
+    gap: clamp(10px, 3vw, 120px);
     justify-content: center;
     padding: .75rem 0;
 }
 
 .gallery-thumbs img {
-    width: 72px;
-    height: 72px;
+    width: clamp(60px, 15vw, 72px);
+    height: clamp(60px, 15vw, 72px);
     border-radius: 8px;
     border: 2px solid transparent;
     padding: 4px;
@@ -342,9 +342,11 @@ body {
         grid-template-columns: 1fr;
         padding: 1.2rem
     }
-body{
-    margin-top: 0;
-}
+
+    body {
+        margin-top: 0
+    }
+
     .property-gallery {
         position: relative;
         top: auto
@@ -357,11 +359,9 @@ body{
 
 @media (max-width: 768px) {
     body {
-        margin-top: 80px
+        margin-top: 0
     }
-body{
-    margin-top: 0;
-}
+
     .property-title {
         font-size: 1.6rem
     }
@@ -382,5 +382,119 @@ body{
     .info-list,
     .features-list {
         grid-template-columns: 1fr
+    }
+
+    .gallery-thumbs {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px
+    }
+}
+
+
+
+@media (max-width: 480px) {
+    body {
+        margin-top: 0
+    }
+.wm-center {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    pointer-events: none;
+
+    background-image: url("../images/wmark.png");
+    background-repeat: no-repeat;
+    background-position: center;
+
+    /* nu foarte mare */
+    background-size: min(45%, 120px);
+
+    /* clar vizibil */
+    opacity: 0.78;
+
+    /* fără blur / fără “tulbure” */
+    filter: none;
+}
+    .property-wrapper {
+        padding: 0.6rem;
+        margin: 0.5rem auto
+    }
+
+    .gallery-image-container {
+        width: 100%
+    }
+
+    .gallery-main {
+        max-height: 200px;
+        border: 2px solid var(--red-700)
+    }
+
+    .property-title {
+        font-size: 1.1rem;
+        margin-top: 0.5rem
+    }
+
+    .property-price {
+        gap: 0.8rem
+    }
+
+    .property-price span:first-child {
+        font-size: 1rem
+    }
+
+    .badge-sale {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem
+    }
+
+    .slider-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 16px
+    }
+
+    .gallery-thumbs {
+        grid-template-columns: repeat(3, 50px);
+        gap: 3px;
+        padding: 0.5rem 0
+    }
+
+    .gallery-thumbs img {
+        width: 50px;
+        height: 50px
+    }
+
+    .property-info {
+        gap: 1.25rem
+    }
+
+    .property-info h3 {
+        font-size: 0.95rem
+    }
+
+    .info-list li,
+    .features-list li {
+        padding: 0.3rem 0;
+        font-size: 0.9rem
+    }
+
+    .btn-contact,
+    .btn-ghost {
+        padding: 8px 10px;
+        font-size: 0.85rem
+    }
+
+    .agent-box {
+        padding: 1rem;
+        gap: 1rem
+    }
+
+    .agent-box img {
+        width: 80px;
+        height: 80px
+    }
+
+    .agent-box p {
+        font-size: 1rem
     }
 }
