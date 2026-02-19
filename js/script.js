@@ -399,7 +399,7 @@
 
     const CAHUL_GROUP = new Set(
       [
-        "focsa",
+        "focșa",
         "micro 15",
         "lapaevca",
         "centru",
@@ -408,13 +408,13 @@
         "autogara",
         "spirin",
         "valincea",
-        "centru-str.puskin",
-        "centru-str.creanga",
+        "centru-str.pușkin",
+        "centru-str.creangă",
         "gebhardt",
-        "centru-baia publica",
+        "centru-baia publică",
         "jubileu",
-        "centru-surin market",
-        "calea ferata",
+        "centru-șurin market",
+        "calea ferată",
         "fabrica de vinuri",
         "pmk 10",
       ].map(norm)
