@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
 :root {
@@ -48,7 +47,7 @@ body {
 /* IMPORTANT: overflow hidden ca overlay-ul să stea fix peste imagine */
 .gallery-image-container {
     position: relative;
-    width: clamp(300px, 90vw, 700px);
+    width: clamp(100px, 90vw, 600px);
     border-radius: 16px;
     overflow: hidden;
     align-self: center;
@@ -81,7 +80,7 @@ body {
     background-position: center;
 
     /* nu foarte mare */
-    background-size: min(45%, 120px);
+    background-size: min(45%, 320px);
 
     /* clar vizibil */
     opacity: 0.78;
@@ -155,12 +154,10 @@ body {
 /* Thumbs */
 .gallery-thumbs {
     display: grid;
-    grid-template-columns: repeat(3, 72px);
-    gap: 4px 100px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
     justify-content: center;
-    align-items: center;
-    margin: 0 auto;
-    width: fit-content;
+    padding: .75rem 0;
 }
 
 .gallery-thumbs img {
@@ -340,12 +337,14 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 992px) {
+@media (max-width: 1141px) {
     .property-wrapper {
         grid-template-columns: 1fr;
         padding: 1.2rem
     }
-
+body{
+    margin-top: 0;
+}
     .property-gallery {
         position: relative;
         top: auto
@@ -360,7 +359,9 @@ body {
     body {
         margin-top: 80px
     }
-
+body{
+    margin-top: 0;
+}
     .property-title {
         font-size: 1.6rem
     }
@@ -383,4 +384,3 @@ body {
         grid-template-columns: 1fr
     }
 }
-
