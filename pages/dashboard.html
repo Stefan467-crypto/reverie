@@ -188,7 +188,15 @@
             box-shadow: 0 8px 24px rgba(183, 28, 28, .12);
             border-color: var(--red-700);
         }
-
+        @media (min-width:883) and (max-width:933) {
+            #myPropsGrid,
+        #allPropsGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 400px));
+            gap: 20px;
+            justify-content: center;
+        }
+        }
         @media (max-width:480px) {
             .back-link .back-text {
                 display: none;
@@ -1252,3 +1260,4 @@
 </body>
 
 </html>
+
