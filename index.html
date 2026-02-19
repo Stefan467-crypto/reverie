@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reverie</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <link rel="shortcut icon" href="https://reverie.md/wp-content/uploads/2017/08/cropped-ReverieIcon512.png" />
+</head>
+<body><!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand p-0" href="#">
+                <img src="images/img1.png" alt="Logo" style="height:60px;">
+            </a>
+            <button class="navbar-hamburger" id="navbarHamburger" aria-label="Toggle navigation" aria-expanded="false"
+                aria-controls="navMenu" type="button">
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+                <span class="hamburger-bar"></span>
+            </button>
+            <div class="navbar-links" id="navMenu">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    <li class="nav-item"><a class="nav-link nav-link-custom active" href="#">Acasă</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#oferte">Ofertele Noastre</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#servicii">Serviciile Noastre</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#contacte">Contacte</a></li>
+                </ul>
+            </div>
+
+            <div class="nav-actions d-flex align-items-center gap-2">
+                <div class="socials d-flex gap-2">
+                    <a href="https://www.facebook.com/AgentiaReverie" class="social-link" target="_blank" rel="noopener"
+                        aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/agentiareverie" class="social-link" target="_blank" rel="noopener"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a id="floatingDashBtn" class="floating-dash-btn d-none" href="pages/dashboard.html">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        Dashboard
+                    </a>
+                    <a id="floatingLoginBtn" class="floating-dash-btn d-none" href="pages/login.html">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Login
+                    </a>
+                </div>
+                <a href="tel:029933255" class="btn btn-apel" aria-label="Apel">APEL</a>
+            </div>
+            <!-- Mobile menu -->
+            <div class="mobile-menu-content" aria-hidden="true">
+                <ul class="mobile-menu-list">
+                    <li class="nav-item"><a class="nav-link nav-link-custom active" href="#">Acasă</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#oferte">Ofertele Noastre</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#servicii">Serviciile Noastre</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="#contacte">Contacte</a></li>
+                </ul>
+                <a href="tel:029933255" class="mobile-menu-call">APEL</a>
+                <div class="mobile-menu-socials">
+                    <a href="https://www.facebook.com/AgentiaReverie" class="social-link" target="_blank" rel="noopener"
+                        aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://www.instagram.com/agentiareverie" class="social-link" target="_blank" rel="noopener"
+                        aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                </div>
+                <div class="mobile-menu-actions">
+                    <a id="mobileLoginBtn" class="mobile-menu-auth-btn d-none" href="pages/login.html">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        Login
+                    </a>
+                    <a id="mobileDashBtn" class="mobile-menu-auth-btn d-none" href="pages/dashboard.html">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="container">
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-7">
+                    <h1 class="display-5">Găsește casa visurilor tale cu Reverie</h1>
+                    <p class="lead subtitle my-3">Descoperă cele mai bune oferte de proprietăți — apartamente, case,
+                        terenuri și spații comerciale. Servicii rapide, transparente și dedicate ție.</p>
+                    <div class="d-flex gap-3 flex-wrap"> <a href="#oferte" class="btn btn-cta">Vezi anunțuri</a> <a
+                            href="tel:+37379844040" class="btn btn-cta-outline">Contactează un agent</a> </div>
+                    <div class="mt-4 text-white-50 small"> <i class="fa-solid fa-check me-2"></i> Suport local • <i
+                            class="fa-solid fa-shield-halved ms-2 me-2"></i> Verificări complete • <i
+                            class="fa-solid fa-thumbs-up ms-2"></i> Recomandări reale </div>
+                </div>
+                <div class="col-lg-5">
+                    <div class="hero-visual">
+                        <div class="d-flex align-items-start gap-3">
+                            <div
+                                style="width:84px;height:84px;border-radius:.85rem;background:linear-gradient(135deg,#fff,#ffecec);flex:0 0 84px;display:flex;align-items:center;justify-content:center;">
+                                <svg width="44" height="44" viewBox="0 0 24 24" fill="#b71c1c"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 3l9 8h-3v8h-4v-5H10v5H6v-8H3l9-8z" />
+                                </svg>
+                            </div>
+                            <div class="flex-fill">
+                                <h5 class="mb-1" style="color:#fff;">Apartamente moderne</h5>
+                                <p class="mb-2 small" style="color:rgba(255,255,255,0.88)">La cele mai convenabile
+                                    preturi</p>
+                                <div class="d-flex gap-2"> <a class="btn btn-sm btn-light" href="#servicii"
+                                        style="color:#b71c1c;font-weight:700;" >Vezi detalii</a> <a
+                                        class="btn btn-sm btn-outline-light" href="#contacte">Programează consultatie</a> </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-3 mt-3">
+                            <div>
+                                <div class="h6 mb-0" style="color:#fff;">15 ani</div> <small class="text-white-50">Lucru
+                                    în domeniu</small>
+                            </div>
+                            <div>
+
+                                <div class="h6 mb-0" style="color:#fff;">98%</div> <small
+                                    class="text-white-50">Satisfacție clienți</small>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="hero-wave"> <svg viewBox="0 0 1200 80" preserveAspectRatio="none"
+                style="width:100%;height:64px;display:block;">
+
+                <path d="M0,20 C300,80 900,0 1200,40 L1200,80 L0,80 Z" fill="#ffffff"></path>
+
+            </svg> </div>
+
+    </section>
+    <!-- APARTMENTS SECTION -->
+
+    <section class="apartments-section py-5" id="oferte">
+
+        <div class="container">
+            <div class="row gy-4">
+
+
+
+                <!-- Filters column -->
+                <aside class="col-lg-3 col-md-4 col-12">
+
+                    <button id="toggleFiltersBtn" class="btn w-100 mb-3 d-lg-none" type="button"
+                        style="background-color: var(--red-700); color: white; font-weight: 700; border-radius: 8px;">
+                        <i class="fa-solid fa-filter me-2"></i> Arată Filtrele
+                    </button>
+
+                    <div id="filtersCard" class="filters-card p-4 shadow-sm">
+
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+
+                            <h5 class="m-0">Filtre</h5>
+
+                            <button id="clearFilters" class="btn btn-sm btn-outline-secondary" type="button">Reset
+
+                                filters</button>
+
+                        </div>
+
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label small mb-2">Căutare titlu</label>
+
+                            <input id="searchInput" type="search" class="form-control" placeholder="Caută dupa titlu...">
+
+                        </div>
+
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label small mb-2">Cod apartament</label>
+
+                            <input id="codeFilter" type="text" class="form-control" placeholder="Ex: 38283, 87543...">
+
+                        </div>
+
+
+
+                        <div class="mb-3">
+
+                            <label class="form-label small mb-2">Preț</label>
+
+                            <div class="price-range">
+
+                                <input id="minRange" type="range" min="0" step="500" value="0">
+
+                                <input id="maxRange" type="range" min="0" step="500" value="0">
+
+                            </div>
+
+                            <div class="d-flex gap-2 mt-2">
+
+                                <input id="minPrice" type="number" class="form-control" placeholder="0" min="0">
+
+                                <div class="d-flex align-items-center px-2">—</div>
+
+                                <input id="maxPrice" type="number" class="form-control" placeholder="Max" min="0">
+
+                            </div>
+
+                        </div>
+                        <!-- Tip proprietate -->
+                        <div class="mb-3">
+                            <label class="form-label small mb-2">Tip proprietate</label>
+                            <div class="custom-dropdown" id="typeDropdown">
+                                <button class="dropdown-toggle" type="button"><span
+                                        class="dropdown-label">Toate</span></button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-search">
+                                        <input type="text" class="dropdown-search-input" placeholder="Căutare...">
+                                    </div>
+                                    <div class="dropdown-options">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Camere -->
+
+                        <div class="mb-3">
+                            <label class="form-label small mb-2">Camere</label>
+                            <div class="custom-dropdown" id="dataRooms">
+                                <button class="dropdown-toggle" type="button"><span
+                                        class="dropdown-label">Toate</span></button>
+                                <div class="dropdown-menu">
+                                    <div class="dropdown-search">
+                                        <input type="text" class="dropdown-search-input" placeholder="Căutare...">
+                                    </div>
+                                    <div class="dropdown-options">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Amplasare -->
+
+                        <div class="mb-3">
+
+                            <label class="form-label small mb-2">Amplasare imobil</label>
+
+                            <div class="custom-dropdown" id="raionsDropdown">
+
+                                <button class="dropdown-toggle" type="button"><span
+                                        class="dropdown-label">Toate</span></button>
+
+                                <div class="dropdown-menu">
+
+                                    <div class="dropdown-search">
+
+                                        <input type="text" class="dropdown-search-input" placeholder="Căutare...">
+
+                                    </div>
+
+
+
+                                    <div class="dropdown-options">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+
+                    </div>
+
+                </aside>
+                <!-- Listings column -->
+
+                <main class="col-lg-9 col-md-8 col-12">
+
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+
+                        <h4 class="m-0">Obiecte</h4>
+
+                        <div class="d-flex align-items-center gap-2">
+
+                            <div class="small text-muted" id="resultsCount">Arată: 0</div>
+
+                            <div class="sort-dropdown" id="sortDropdown">
+
+                                <button id="sortToggle" class="sort-toggle" aria-expanded="false">Sortează <span
+                                        class="caret">▾</span></button>
+
+                                <ul id="sortMenu" class="sort-menu" aria-hidden="true">
+
+                                    <li class="sort-item active" data-sort="popular">Popular</li>
+
+                                    <li class="sort-item" data-sort="asc">Ieftine</li>
+
+                                    <li class="sort-item" data-sort="desc">Scumpe</li>
+
+                                </ul>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row" id="apartmentsGrid"></div>
+                </main>
+            </div>
+        </div>
+    </section>
+    <!-- SERVICES SECTION -->
+
+    <section class="services-section py-5" id="servicii">
+
+        <div class="container">
+
+            <div class="text-center mb-4">
+
+                <h2 class="display-6">Serviciile Noastre</h2>
+
+                <p class="text-muted lead">Tot ce îți trebuie pentru a cumpăra, vinde sau închiria — profesionist, rapid
+
+                    și sigur.</p>
+
+            </div>
+
+
+
+            <div class="row g-4 services-grid">
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <div class="service-card p-4 h-100 text-center">
+
+                        <div class="icon mb-3"><i class="fa-solid fa-magnifying-glass"></i></div>
+
+                        <h5 class="mb-2">Evaluare gratuită</h5>
+
+                        <p class="small text-muted">Estimări reale, bazate pe piață — află prețul optim pentru
+
+                            proprietatea ta.</p>
+
+
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <div class="service-card p-4 h-100 text-center">
+
+                        <div class="icon mb-3"><i class="fa-solid fa-bullhorn"></i></div>
+
+                        <h5 class="mb-2">Promovare premium</h5>
+
+                        <p class="small text-muted">Promovează-ți anunțul cu avantaje suplimentare pentru a atrage mai mulți cumpărători.</p>
+
+
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="col-12 col-md-6 col-lg-3">
+
+                    <div class="service-card p-4 h-100 text-center">
+
+                        <div class="icon mb-3"><i class="fa-solid fa-gavel"></i></div>
+
+                        <h5 class="mb-2">Asistență juridică</h5>
+
+                        <p class="small text-muted">Contracte corecte, verificări și suport complet pentru tranzacția
+
+                            ta.</p>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="service-card p-4 h-100 text-center">
+                        <div class="icon mb-3"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                        <h5 class="mb-2">Consultanță financiară</h5>
+                        <p class="small text-muted">Soluții de finanțare și consiliere pentru a obține cele mai bune
+                            rate.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="services-wave">
+            <svg viewBox="0 0 1200 60" preserveAspectRatio="none" style="width:100%;height:54px;display:block;">
+                <path d="M0,30 C300,0 900,60 1200,30 L1200,60 L0,60 Z" fill="#fff"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section class="contact-section py-5" id="contacte">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="display-6">Contactează-ne</h2>
+                <p class="text-muted lead">Alege un agent și primește ajutor personalizat imediat.</p>
+            </div>
+            <div class="row g-4 align-items-center" id="agentsRow">
+            </div>
+        </div>
+    </section>
+    <div class="container-fluid bg-dark text-white-50 footer pt-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-md-6 col-lg-3">
+                    <a href="index.html" class="d-inline-block mb-3">
+                        <img src="images/wmark.png" class="footer-img">
+                    </a>
+                    <p class="mb-4">Agenția REVERIE - Partenerul tău în căutarea unui cuib de trai în orice colț 
+                        orașului.</p>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <h5 class="text-white mb-4">Contactează-ne</h5>
+                    <p><a class="fa fa-map-marker-alt me-3" href="https://shorturl.at/tm4BW"></a> str. Fiodor
+                        Seliviostrov 9z, Cahul</p>
+                    <p><a class="fa fa-phone-alt me-3" href="tel:029933255"></a>+373 29933255</p>
+                    <p><i class="fa fa-envelope me-3"></i>info@reverie.md</p>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <h5 class="text-white mb-4">Avantajele Noastre</h5>
+                    <a class="btn btn-link">Peste 10 ani în domeniu</a>
+                    <a class="btn btn-link">Feedback Rapid</a>
+                    <a class="btn btn-link">Agenți Profesionali</a>
+                    <a class="btn btn-link">100+ Clienți Mulțumiți</a>
+                    <a class="btn btn-link">Condiții Avantajoase</a>
+                </div>
+
+
+                <div class="col-md-6 col-lg-3">
+                    <h5 class="text-white mb-4">Serviciile Noastre</h5>
+                    <a class="btn btn-link">Evaluare gratuită</a>
+                    <a class="btn btn-link">Promovare premium</a>
+                    <a class="btn btn-link">Asistență juridică</a>
+                    <a class="btn btn-link">Consultanță financiară</a>
+                    <a class="btn btn-link">Consiliere personalizată</a>
+                </div>
+            </div>
+            <div class="container">
+                <div class="copyright">
+                    <div class="row align-items-center">
+                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+                            &copy; Acest website a fost realizat în cadrul competiției ”Tekwill Junior Ambassadors”
+                            organizat de proiectul ”Tekwill în Fiecare Școală”
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="js/script.js"></script>
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+            import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+            const firebaseConfig = {
+                apiKey: "AIzaSyCqXpk1NuWfiq6QjHViK80HLl9zwFVGNGo",
+                authDomain: "reverie-c861c.firebaseapp.com",
+                projectId: "reverie-c861c",
+                storageBucket: "reverie-c861c.firebasestorage.app",
+                messagingSenderId: "122254003952",
+                appId: "1:122254003952:web:67dea6de1f5eb97a9b7c35",
+                measurementId: "G-3RW7VCE2RX"
+            };
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const dashBtn = document.getElementById("floatingDashBtn");
+            const loginBtn = document.getElementById("floatingLoginBtn");
+            const mobileDashBtn = document.getElementById("mobileDashBtn");
+            const mobileLoginBtn = document.getElementById("mobileLoginBtn");
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    dashBtn?.classList.remove("d-none");
+                    loginBtn?.classList.add("d-none");
+                    mobileDashBtn?.classList.remove("d-none");
+                    mobileLoginBtn?.classList.add("d-none");
+                } else {
+                    dashBtn?.classList.add("d-none");
+                    loginBtn?.classList.remove("d-none");
+                    mobileDashBtn?.classList.add("d-none");
+                    mobileLoginBtn?.classList.remove("d-none");
+                }
+            });
+        </script>
+</body>
+
+</html>
