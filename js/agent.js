@@ -428,7 +428,7 @@
     let originalOrder = [];
 
     // ✅ watermark source (poți schimba dacă vrei alt logo)
-    const WATERMARK_SRC = "images/wmark.png";
+    const WATERMARK_SRC = "../images/wmark.png";
 
     function buildCard(p) {
       const title = String(p.title || "Fără titlu");
@@ -446,7 +446,7 @@
       const regionRaw = String(p.region || "");
       const regionParts = parseRegionParts(regionRaw);
 
-      const img = String(p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "images/wmark.png");
+      const img = String(p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "../images/wmark.png");
 
       // ✅ NEW: status + overlay text
       const status = normalizeStatus(p.status);
