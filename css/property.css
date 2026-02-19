@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 
 :root {
@@ -47,9 +48,10 @@ body {
 /* IMPORTANT: overflow hidden ca overlay-ul să stea fix peste imagine */
 .gallery-image-container {
     position: relative;
-    width: 100%;
+    width: clamp(300px, 90vw, 700px);
     border-radius: 16px;
     overflow: hidden;
+    align-self: center;
 }
 
 .gallery-main {
@@ -79,7 +81,7 @@ body {
     background-position: center;
 
     /* nu foarte mare */
-    background-size: min(45%, 320px);
+    background-size: min(45%, 120px);
 
     /* clar vizibil */
     opacity: 0.78;
@@ -153,9 +155,12 @@ body {
 /* Thumbs */
 .gallery-thumbs {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    padding: .75rem 0;
+    grid-template-columns: repeat(3, 72px);
+    gap: 4px 100px;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: fit-content;
 }
 
 .gallery-thumbs img {
