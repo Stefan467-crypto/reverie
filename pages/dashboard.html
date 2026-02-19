@@ -555,7 +555,11 @@
 
             #myPropsGrid,
             #allPropsGrid {
-                justify-content: flex-start;
+            
+                display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 400px));
+            gap: 20px;
+            justify-content: center;
             }
         }
 
