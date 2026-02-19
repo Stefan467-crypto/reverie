@@ -153,7 +153,7 @@ body {
 /* Thumbs */
 .gallery-thumbs {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
     padding: .75rem 0;
 }
@@ -378,3 +378,4 @@ body {
         grid-template-columns: 1fr
     }
 }
+
