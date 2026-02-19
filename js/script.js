@@ -430,6 +430,61 @@
     // ✅ watermark source (poți schimba dacă vrei alt logo)
     const WATERMARK_SRC = "images/wmark.png";
 
+    // Show/hide extra items (first N visible)
+    const SHOW_LIMIT = 9;
+    let isShowAll = false;
+    let showAllBtn = null;
+
+    function ensureShowAllButton() {
+      if (showAllBtn) return;
+      showAllBtn = document.createElement("button");
+      showAllBtn.id = "toggleShowAllBtn";
+      showAllBtn.className = "btn btn-outline-secondary mt-3";
+      showAllBtn.type = "button";
+      showAllBtn.style.display = "none";
+      showAllBtn.addEventListener("click", () => {
+        isShowAll = !isShowAll;
+        updateShowControls();
+      });
+
+      // insert after grid
+      if (grid && grid.parentNode) {
+        grid.parentNode.insertBefore(showAllBtn, grid.nextSibling);
+      }
+    }
+
+    function updateShowControls() {
+      // ensure button exists
+      ensureShowAllButton();
+
+      const visibleCols = Array.from(grid.children).filter((col) => col.style.display !== "none");
+      const visibleCount = visibleCols.length;
+
+      if (visibleCount > SHOW_LIMIT) {
+        showAllBtn.style.display = "inline-block";
+
+        if (isShowAll) {
+          // reveal all (only those that are currently filtered visible)
+          visibleCols.forEach((c) => (c.style.display = ""));
+          showAllBtn.textContent = "Ascunde restul";
+        } else {
+          // hide extras beyond limit
+          visibleCols.forEach((c, idx) => {
+            c.style.display = idx < SHOW_LIMIT ? "" : "none";
+          });
+          showAllBtn.textContent = "Vezi toate";
+        }
+        // update results count to reflect visible after collapse
+        if (resultsCount) resultsCount.textContent = `Arată: ${Math.min(visibleCount, SHOW_LIMIT)}`;
+      } else {
+        // nothing to toggle
+        showAllBtn.style.display = "none";
+        // ensure all visible remain visible
+        visibleCols.forEach((c) => (c.style.display = ""));
+        if (resultsCount) resultsCount.textContent = `Arată: ${visibleCount}`;
+      }
+    }
+
     function buildCard(p) {
       const title = String(p.title || "Fără titlu");
 
@@ -510,6 +565,9 @@
       grid.innerHTML = "";
       items.forEach((p) => grid.appendChild(buildCard(p)));
       originalOrder = Array.from(grid.children);
+      // ensure show/hide button exists and update the visible state
+      ensureShowAllButton();
+      updateShowControls();
     }
 
     function setPriceMaxFromData(items) {
@@ -691,6 +749,8 @@
       ddRaions?.setAvailability(possibleLoc);
 
       applySort();
+      // after filtering/sorting, adjust show/hide controls
+      updateShowControls();
     }
 
     function applySort() {
