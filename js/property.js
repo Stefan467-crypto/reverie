@@ -138,12 +138,20 @@ addRow("Bucătărie", p.kitchenAera ? `${p.kitchenAera} m²` : "");
 
 /* Features */
 if (featuresEl) featuresEl.innerHTML = "";
-if (Array.isArray(p.features) && featuresEl) {
+const hasFeatures = Array.isArray(p.features) && p.features.length > 0;
+if (hasFeatures && featuresEl) {
   p.features.forEach(f => {
     const li = document.createElement("li");
     li.textContent = "• " + String(f);
     featuresEl.appendChild(li);
   });
+}
+// Hide "Caracteristici" heading and list if no features
+if (!hasFeatures && featuresEl) {
+  // Hide the h3 before featuresEl and the featuresEl itself
+  const h3 = featuresEl.previousElementSibling;
+  if (h3 && h3.tagName === "H3") h3.style.display = "none";
+  featuresEl.style.display = "none";
 }
 
 /* Gallery */
@@ -181,6 +189,59 @@ if (images.length > 0) {
 
 prevBtn?.addEventListener("click", () => showImage(current - 1));
 nextBtn?.addEventListener("click", () => showImage(current + 1));
+
+/* Lightbox */
+const lightbox = document.createElement("div");
+lightbox.id = "lightbox";
+lightbox.style.cssText = `
+  display:none; position:fixed; inset:0; z-index:9999;
+  background:rgba(0,0,0,0.92); align-items:center; justify-content:center;
+`;
+lightbox.innerHTML = `
+  <button id="lbClose" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:2rem;cursor:pointer;line-height:1;" aria-label="Inchide">&times;</button>
+  <button id="lbPrev" style="position:absolute;left:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:1.8rem;padding:10px 16px;cursor:pointer;border-radius:50%;" aria-label="Anterior"><i class="fas fa-chevron-left"></i></button>
+  <div style="position:relative;display:inline-flex;">
+    <img id="lbImg" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:6px;" src="" alt="">
+    <div class="wm-center" aria-hidden="true"></div>
+  </div>
+  <button id="lbNext" style="position:absolute;right:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:1.8rem;padding:10px 16px;cursor:pointer;border-radius:50%;" aria-label="Urmator"><i class="fas fa-chevron-right"></i></button>
+`;
+document.body.appendChild(lightbox);
+
+const lbImg = document.getElementById("lbImg");
+const lbClose = document.getElementById("lbClose");
+const lbPrev = document.getElementById("lbPrev");
+const lbNext = document.getElementById("lbNext");
+
+function openLightbox(index) {
+  current = (index + images.length) % images.length;
+  lbImg.src = images[current];
+  lightbox.style.display = "flex";
+  document.body.style.overflow = "hidden";
+}
+function closeLightbox() {
+  lightbox.style.display = "none";
+  document.body.style.overflow = "";
+}
+function lbShowImage(index) {
+  current = (index + images.length) % images.length;
+  lbImg.src = images[current];
+  setActiveThumb(current);
+  if (mainImageEl) mainImageEl.src = images[current];
+}
+
+if (mainImageEl) mainImageEl.style.cursor = "zoom-in";
+mainImageEl?.addEventListener("click", () => openLightbox(current));
+lbClose.addEventListener("click", closeLightbox);
+lbPrev.addEventListener("click", () => lbShowImage(current - 1));
+lbNext.addEventListener("click", () => lbShowImage(current + 1));
+lightbox.addEventListener("click", (e) => { if (e.target === lightbox) closeLightbox(); });
+document.addEventListener("keydown", (e) => {
+  if (lightbox.style.display !== "flex") return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") lbShowImage(current - 1);
+  if (e.key === "ArrowRight") lbShowImage(current + 1);
+});
 
 /* Agent */
 async function loadAgent(agentId) {

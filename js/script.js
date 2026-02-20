@@ -430,7 +430,7 @@
     /* =========================
        "Vezi toate" / "Ascunde toate" button
     ========================= */
-    const INITIAL_VISIBLE = 9;
+    const INITIAL_VISIBLE = 6;
     let isExpanded = false;
 
     // Creăm butonul și îl inserăm după grid
@@ -459,7 +459,7 @@
         return;
       }
 
-      // Avem mai mult de 9 → afișăm butonul
+      // Avem mai mult de 6 → afișăm butonul
       toggleAllBtn.style.display = "";
 
       if (isExpanded) {
@@ -468,7 +468,7 @@
         toggleAllBtn.textContent = "Ascunde toate";
         if (resultsCount) resultsCount.textContent = `Arată: ${total}`;
       } else {
-        // Arată doar primele 9
+        // Arată doar primele 6
         visibleCols.forEach((col, i) => {
           if (i < INITIAL_VISIBLE) {
             col.classList.remove("apart-hidden");
@@ -814,6 +814,25 @@
     if (codeFilter) codeFilter.addEventListener("input", debounce(applyFilters, 150));
 
     if (minRange && maxRange) {
+      function updateRangeZIndex() {
+        const minVal = Number(minRange.value);
+        const maxVal = Number(maxRange.value);
+        const total = Number(minRange.max) - Number(minRange.min) || 1;
+        const minPct = (minVal - Number(minRange.min)) / total;
+        const maxPct = (maxVal - Number(minRange.min)) / total;
+        // maxRange la valori mici (stanga) -> maxRange deasupra
+        // minRange la valori mari (dreapta) -> minRange deasupra
+        if (minPct > 0.5) {
+          // minRange e in jumatatea dreapta -> el ia prioritate
+          minRange.style.zIndex = "5";
+          maxRange.style.zIndex = "4";
+        } else {
+          // maxRange e in jumatatea stanga sau ambii la inceput -> maxRange ia prioritate
+          minRange.style.zIndex = "4";
+          maxRange.style.zIndex = "5";
+        }
+      }
+
       minRange.addEventListener("input", () => {
         let minV = Number(minRange.value);
         let maxV = Number(maxRange.value);
@@ -822,6 +841,7 @@
           minRange.value = String(minV);
         }
         if (minPriceInput) minPriceInput.value = String(minV);
+        updateRangeZIndex();
         applyFilters();
       });
 
@@ -833,6 +853,7 @@
           maxRange.value = String(maxV);
         }
         if (maxPriceInput) maxPriceInput.value = String(maxV);
+        updateRangeZIndex();
         applyFilters();
       });
     }

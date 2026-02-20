@@ -847,6 +847,8 @@ function ensurePropertyTransferModal() {
         pt_toEl.style.opacity = "";
         pt_toEl.style.position = "";
         pt_toEl.style.pointerEvents = "";
+        pt_toEl.style.display = "";
+        delete pt_toEl.dataset.csTransformed;
       }
 
       if (typeof window.transformSelects === "function") {
