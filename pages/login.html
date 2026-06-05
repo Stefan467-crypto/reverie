@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Autentificare — Reverie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <link rel="shortcut icon" href="https://reverie.md/wp-content/uploads/2017/08/cropped-ReverieIcon512.png" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link href="../css/login.css" rel="stylesheet">
+  <link href="../css/i18n.css" rel="stylesheet">
+
+  
+  <script>(function(){try{document.documentElement.lang=localStorage.getItem("reverie_lang")||"ro"}catch(e){}})()</script>
+
+
+</head>
+
+<body>
+  <div class="login-wrapper">
+    
+    
+    <a class="back-link" href="../index.html">
+      <span data-i18n="login.back">← Înapoi</span>
+    </a>
+
+    
+    <div class="login-lang-switcher-wrap nav-actions">
+      
+      <span class="btn-apel" style="display:none;"></span>
+    </div>
+
+    
+    <div class="login-box">
+      
+      
+      <a href="../index.html" class="logo-brand">
+        <span class="logo-text">REVERIE</span>
+      </a>
+
+      
+      <div class="login-header">
+        <h1 class="login-title">
+          <span data-i18n="login.form_title_1">Bine ai</span><br>
+          <span data-i18n="login.form_title_2">revenit</span>
+        </h1>
+        <p class="login-subtitle" data-i18n="login.form_sub">Introdu datele contului pentru a continua.</p>
+      </div>
+
+      
+      <form class="login-form" id="loginForm">
+        
+        <div class="form-group">
+          <label for="email" data-i18n="login.email_label">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            placeholder="agent@reverie.md"
+            data-i18n="login.email_ph"
+            data-i18n-attr="placeholder"
+            autocomplete="username" 
+            maxlength="254" 
+            spellcheck="false"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label for="password" data-i18n="login.password_label">Parolă</label>
+          <input 
+            type="password" 
+            id="password" 
+            placeholder="••••••••"
+            data-i18n="login.password_ph"
+            data-i18n-attr="placeholder"
+            autocomplete="current-password" 
+            maxlength="128"
+            required>
+        </div>
+
+        <button class="btn-login" id="loginBtn" type="submit" data-i18n="login.btn">
+          Intră în cont
+        </button>
+
+        <div class="error-msg" id="errorMsg"></div>
+
+        <p class="form-note" data-i18n="login.note">acces exclusiv agenți</p>
+
+      </form>
+
+    </div>
+
+  </div>
+
+  <script type="module" src="../js/login.js"></script>
+
+</body>
+
+</html>

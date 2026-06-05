@@ -1,0 +1,103 @@
+/* Switcher container */
+.lang-switcher {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(183, 28, 28, 0.06);
+  border-radius: 8px;
+  padding: 3px 4px;
+}
+
+
+/* Language button */
+.lang-btn {
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #6b1010;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+  line-height: 1.5;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.lang-btn:hover {
+  background: rgba(183, 28, 28, 0.12);
+  color: #b71c1c;
+}
+
+.lang-btn.active {
+  background: #b71c1c;
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(183, 28, 28, 0.25);
+}
+
+.lang-btn:focus-visible {
+  outline: 2px solid #b71c1c;
+  outline-offset: 2px;
+}
+
+
+/* Desktop switcher */
+.lang-switcher--desktop {
+  margin-right: 4px;
+}
+
+
+/* Mobile switcher */
+.lang-switcher--mobile {
+  justify-content: center;
+  margin: 10px 16px 4px;
+  padding: 5px 8px;
+  background: rgba(183, 28, 28, 0.06);
+}
+
+.lang-switcher--mobile .lang-btn {
+  font-size: 0.8rem;
+  padding: 5px 14px;
+  border-radius: 8px;
+}
+
+
+/* Responsive */
+@media (max-width: 380px) {
+  .lang-switcher--desktop {
+    display: none;
+  }
+}
+
+
+/* Translation transition */
+[data-i18n] {
+  transition: opacity 0.12s ease;
+}
+
+
+/* Sidebar switcher */
+.lang-switcher--sidebar {
+  justify-content: center;
+  padding: 6px 8px;
+  background: rgba(183, 28, 28, 0.08);
+  border-radius: 10px;
+  gap: 4px;
+  width: 100%;
+}
+
+.lang-switcher--sidebar .lang-btn {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  padding: 5px 0;
+  border-radius: 7px;
+}
+
+
+.login-lang-switcher-wrap .lang-switcher--desktop {
+  margin-right: 0;
+  background: rgba(183, 28, 28, 0.07);
+}

@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ro">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Agent — Reverie</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="shortcut icon" href="https://reverie.md/wp-content/uploads/2017/08/cropped-ReverieIcon512.png" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@11.0.2/public/assets/styles/choices.min.css">
+  <link href="../css/dashboard.css" rel="stylesheet">
+  <link href="../css/i18n.css" rel="stylesheet">
+
+  <!-- Restore language before render to prevent FOUC -->
+  <script>(function(){try{document.documentElement.lang=localStorage.getItem("reverie_lang")||"ro"}catch(e){}})()</script>
+
+  
+</head>
+
+<body data-meta-title="meta.dashboard_title">
+  <div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+      <a href="../index.html" class="back-link" aria-label="Înapoi la pagina principală">
+        &larr; <span class="back-text" data-i18n="dash.back">Înapoi</span>
+      </a>
+
+      <div class="brand">
+        <span class="dot"></span>
+        <div>
+          <div class="brand-title">REVERIE</div>
+          <div class="brand-sub" id="brandSub" data-i18n="dash.brand_sub_agent">Agent Dashboard</div>
+        </div>
+      </div>
+
+      <div class="px-2 pb-2">
+        <div id="authStatus" class="small" style="opacity:.85;" data-i18n="dash.checking_auth">Verific autentificarea...
+        </div>
+      </div>
+
+      <div class="sidebar-nav d-grid gap-2 px-2">
+        <button class="navbtn active" data-view="home">
+          <span data-i18n="dash.nav_home">Acasă</span>
+        </button>
+        <div class="small-muted px-1" style="font-weight:600;opacity:.75;margin-top:6px;"
+          data-i18n="dash.nav_agent_sep">Agent</div>
+        <button class="navbtn" data-view="my">
+          <span data-i18n="dash.nav_my">Proprietățile mele</span>
+        </button>
+        <button class="navbtn" data-view="add">
+          <span data-i18n="dash.nav_add">Adaugă proprietate</span>
+        </button>
+        <div id="adminSep" class="small-muted px-1 d-none" style="font-weight:600;opacity:.75;margin-top:10px;"
+          data-i18n="dash.nav_admin_sep">Admin</div>
+        <button class="navbtn d-none" data-view="all" id="navAllBtn">
+          <span data-i18n="dash.nav_admin_panel">Panou Admin</span>
+        </button>
+        <button class="navbtn d-none" data-view="users" id="navUsersBtn">
+          <span data-i18n="dash.nav_users">Utilizatori</span>
+        </button>
+      </div><br>
+
+      <!-- Language switcher injected here by langSwitcher.js -->
+      <div class="sidebar-lang-anchor px-2 mb-2"></div>
+
+      <div class="sidebar-footer px-2">
+        <button id="logoutBtn" style="color:black;" class="btn btn-outline-light w-100"
+          data-i18n="dash.logout">Ieșire</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="content">
+
+      <!-- Topbar -->
+      <div class="topbar">
+        <div>
+          <h1 class="h4 mb-1" id="pageTitle" data-i18n="dash.title_home">Acasă</h1>
+          <div id="pageSubtitle" class="small-muted" data-i18n="dash.subtitle_home">Panoul tău de control.</div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+          <button class="btn btn-outline-secondary sidebar-toggle" aria-label="Meniu">
+            <i class="fa fa-bars" aria-hidden="true"></i>
+          </button>
+          <span class="small-muted account-label" data-i18n="dash.topbar_account">Cont:</span>
+          <span id="uidBadge" class="badge text-bg-dark badge-code">-</span>
+        </div>
+      </div>
+
+      <!-- HOME VIEW -->
+      <section id="view-home">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <h2 class="h5 mb-2">
+              <span data-i18n="dash.greeting">Salut</span>,
+            </h2>
+            <p class="small-muted mb-3" data-i18n="dash.welcome_text">
+              Bun venit în panoul tău de agent. Aici poți gestiona proprietățile tale imobiliare,
+              adăuga altele noi și vizualiza statistici rapide despre activitatea ta.
+            </p>
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <div class="small-muted" data-i18n="dash.stat_total">Proprietăți totale</div>
+                    <div id="statTotal" class="h4 m-0">-</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <div class="small-muted" data-i18n="dash.stat_last">Ultima proprietate</div>
+                    <div id="statLast" class="h6 m-0"
+                      style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">-</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <div class="small-muted" data-i18n="dash.stat_actions">Acțiuni rapide</div>
+                    <button class="btn btn-danger btn-sm mt-2" id="goAddBtn" data-i18n="dash.btn_add_now">Adaugă
+                      acum</button>
+                    <button class="btn btn-outline-secondary btn-sm mt-2" id="goMyBtn"
+                      data-i18n="dash.btn_view_list">Vezi lista</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="homeMsg" class="small-muted mt-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MY PROPERTIES VIEW -->
+      <section id="view-my" class="d-none">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <h2 class="h5 m-0" data-i18n="dash.title_my">Proprietățile mele</h2>
+              <button class="btn btn-outline-secondary btn-sm" id="refreshMyBtn"
+                data-i18n="dash.refresh">Reîmprospătare</button>
+            </div>
+            <div id="myPropsStatus" class="small-muted mb-3" data-i18n="dash.loading">Se încarcă...</div>
+            <div id="myPropsGrid" class="row g-3"></div>
+            <div id="myMsg" class="small-muted mt-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADMIN ALL PROPERTIES -->
+      <section id="view-all" class="d-none">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+          <div>
+            <h5 class="mb-0" data-i18n="dash.all_title">Toate proprietățile</h5>
+            <div class="small text-muted" id="allPropsStatus">—</div>
+          </div>
+          <button id="refreshAllBtn" class="btn btn-sm btn-outline-secondary"
+            data-i18n="dash.refresh">Reîmprospătare</button>
+        </div>
+        <div class="row g-3" id="allPropsGrid"></div>
+      </section>
+
+      <!-- ADMIN USERS -->
+      <section id="view-users" class="d-none">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+              <h2 class="h5 m-0" data-i18n="dash.users_title">Utilizatori</h2>
+              <button class="btn btn-outline-secondary btn-sm" id="refreshUsersBtn"
+                data-i18n="dash.refresh">Reîmprospătare</button>
+            </div>
+
+            <div class="row g-3">
+              <!-- Create user -->
+              <div class="col-12 col-lg-6">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <h6 class="mb-2" data-i18n="dash.create_user_title">Creează utilizator nou</h6>
+                    <form id="createUserForm" class="row g-2">
+                      <div class="col-12">
+                        <input id="cu_name" class="form-control" data-i18n="dash.name_ph" data-i18n-attr="placeholder"
+                          placeholder="Nume (ex: Diana Ciobănică)" required>
+                      </div>
+                      <div class="col-12">
+                        <input id="cu_phone" class="form-control" data-i18n="dash.phone_ph" data-i18n-attr="placeholder"
+                          placeholder="Telefon (ex: +373...)">
+                      </div>
+                      <div class="col-12">
+                        <input id="cu_email" type="email" class="form-control" data-i18n="dash.email_label"
+                          data-i18n-attr="placeholder" placeholder="Email" required>
+                      </div>
+                      <div class="col-12">
+                        <input id="cu_password" type="password" class="form-control" data-i18n="dash.password_ph"
+                          data-i18n-attr="placeholder" placeholder="Parolă" required>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label" data-i18n="dash.agent_photo_label">Poză agent</label>
+                        <input id="cu_photo" type="file" class="form-control" accept="image/*">
+                        <div id="cu_photoPreview" class="preview-grid"></div>
+                      </div>
+                      <div class="col-12">
+                        <select id="cu_role" class="form-select">
+                          <option value="" disabled selected data-i18n="dash.role_ph">Selectează</option>
+                          <option value="agent">agent</option>
+                          <option value="admin">admin</option>
+                        </select>
+                      </div>
+                      <div class="col-12 d-flex gap-2">
+                        <button class="btn btn-danger" type="submit" data-i18n="dash.create_btn">Creează</button>
+                        <button class="btn btn-outline-secondary" type="button" id="cu_reset"
+                          data-i18n="dash.reset_btn">Resetare</button>
+                      </div>
+                      <div class="col-12">
+                        <div id="usersMsg" class="small-muted"></div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transfer properties -->
+              <div class="col-12 col-lg-6">
+                <div class="card shadow-sm">
+                  <div class="card-body">
+                    <h6 class="mb-2" data-i18n="dash.transfer_title">Transfer proprietăți între agenți</h6>
+                    <div class="row g-2">
+                      <div class="col-12"><select id="tr_from" class="form-select transfer-select"></select></div>
+                      <div class="col-12"><select id="tr_to" class="form-select transfer-select"></select></div>
+                      <div class="col-12 d-flex gap-2">
+                        <button id="transferBtn" class="btn btn-danger" type="button"
+                          data-i18n="dash.transfer_btn">Transferă</button>
+                        <button id="transferSwap" class="btn btn-outline-secondary" type="button"
+                          data-i18n="dash.swap_btn">Schimbă</button>
+                      </div>
+                      <div class="col-12">
+                        <div id="transferMsg" class="small-muted"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div><!-- /row -->
+
+            <hr class="my-4">
+
+            <!-- User table -->
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <h6 class="m-0" data-i18n="dash.user_list_title">Lista utilizatori</h6>
+              <input id="usersSearch" class="form-control" style="max-width:320px" data-i18n="dash.search_users_ph"
+                data-i18n-attr="placeholder" placeholder="Caută după nume/email/telefon/rol">
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th data-i18n="dash.col_name">Nume</th>
+                    <th data-i18n="dash.col_email">Email</th>
+                    <th data-i18n="dash.col_phone">Telefon</th>
+                    <th data-i18n="dash.col_role">Rol</th>
+                    <th style="width:240px" data-i18n="dash.col_actions">Acțiuni</th>
+                  </tr>
+                </thead>
+                <tbody id="usersTbody"></tbody>
+              </table>
+            </div>
+            <div id="usersStatus" class="small-muted mt-2">—</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADD PROPERTY VIEW -->
+      <section id="view-add" class="d-none">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 m-0" data-i18n="dash.title_add">Adaugă proprietate</h2>
+              <div class="small-muted">
+                <span data-i18n="dash.auto_code">Cod auto:</span>
+                <span id="codePreview" class="badge text-bg-dark badge-code">-----</span>
+              </div>
+            </div>
+
+            <form id="propertyForm" class="row g-3">
+
+              <!-- TITLE -->
+              <div class="col-12">
+                <div class="form-section-title" data-i18n="dash.section_title_f">Titlu</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label" data-i18n="dash.title_label">Titlu proprietate</label>
+                <div class="title-preview" id="titlePreview" data-i18n="dash.title_placeholder">— completează tip
+                  tranzacție, tip imobil și amplasarea —</div>
+              </div>
+
+              <!-- MAIN INFO -->
+              <div class="col-12">
+                <div class="form-section-title" data-i18n="dash.section_main">Informații principale</div>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">
+                  <span data-i18n="dash.transaction_type">Tip tranzacție</span>
+                  <span class="text-danger">*</span>
+                </label>
+                <select id="transactionType" class="form-select" required>
+                  <option value="" disabled selected data-i18n="dash.opt_select">Selectează</option>
+                  <option value="sale" data-i18n="dash.sale_opt">Vânzare</option>
+                  <option value="rent" data-i18n="dash.rent_opt">Chirie</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">
+                  <span data-i18n="dash.property_type_label">Tip Imobil</span>
+                  <span class="text-danger">*</span>
+                </label>
+                <select id="propertyType" class="form-select" required>
+                  <option value="" disabled selected data-i18n="dash.opt_select">Selectează</option>
+                  <option value="Apartament la sol" data-i18n="dash.prop_type_apartament_sol">Apartament la sol</option>
+                  <option value="Apartament" data-i18n="dash.prop_type_apartament">Apartament</option>
+                  <option value="Casă" data-i18n="dash.prop_type_casa">Casă</option>
+                  <option value="Jumătate de casă" data-i18n="dash.prop_type_jumatate_casa">Jumătate de casă</option>
+                  <option value="Comercial" data-i18n="dash.prop_type_comercial">Comercial</option>
+                  <option value="Restaurant" data-i18n="dash.prop_type_restaurant">Restaurant</option>
+                  <option value="Bar" data-i18n="dash.prop_type_bar">Bar</option>
+                  <option value="Oficiu" data-i18n="dash.prop_type_oficiu">Oficiu</option>
+                  <option value="Magazin" data-i18n="dash.prop_type_magazin">Magazin</option>
+                  <option value="Depozit" data-i18n="dash.prop_type_depozit">Depozit</option>
+                  <option value="Terenuri" data-i18n="dash.prop_type_terenuri">Terenuri</option>
+                  <option value="Teren pentru construcții" data-i18n="dash.prop_type_teren_constructii">Teren pentru construcții</option>
+                  <option value="Teren Agricol" data-i18n="dash.prop_type_teren_agricol">Teren Agricol</option>
+                  <option value="Garaj" data-i18n="dash.prop_type_garaj">Garaj</option>
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label">
+                  <span data-i18n="dash.location_label">Amplasarea</span>
+                  <span class="text-danger">*</span>
+                </label>
+                <select id="region" class="form-select" required>
+                  <option value="" disabled selected data-i18n="dash.opt_select">Selectează</option>
+                  <optgroup data-i18n="dash.opt_cahul_group" data-i18n-attr="label" label="Cahul — subzone">
+                    <option value="Cahul">Cahul</option>
+                    <option value="Centru-Policlinica">Centru-Policlinica</option>
+                    <option value="Focșa">Focșa</option>
+                    <option value="Centru-str.Pușkin">Centru-str.Pușkin</option>
+                    <option value="Spirin">Spirin</option>
+                    <option value="Centru-Baia Publică">Centru-Baia Publică</option>
+                    <option value="Lapaevca">Lapaevca</option>
+                    <option value="Fabrica de Vinuri">Fabrica de Vinuri</option>
+                    <option value="Gebhardt">Gebhardt</option>
+                    <option value="Centru">Centru</option>
+                    <option value="Autogara">Autogara</option>
+                    <option value="Jubileu">Jubileu</option>
+                    <option value="Ghidro">Ghidro</option>
+                    <option value="Lipovanca">Lipovanca</option>
+                    <option value="Calea Ferată">Calea Ferată</option>
+                    <option value="Micro 15">Micro 15</option>
+                    <option value="PMK 10">PMK 10</option>
+                    <option value="Valincea">Valincea</option>
+                    <option value="Centru-Șurin Magazin">Centru-Șurin Magazin</option>
+                    <option value="Centru-str.Creangă">Centru-str.Creangă</option>
+                  </optgroup>
+                  <optgroup data-i18n="dash.opt_other_group" data-i18n-attr="label" label="Alte localități">
+                    <option value="România">România</option>
+                    <option value="Leova">Leova</option>
+                    <option value="Taraclia de Salcie">Taraclia de Salcie</option>
+                    <option value="Alexanderfeld">Alexanderfeld</option>
+                    <option value="Andrușul de Jos">Andrușul de Jos</option>
+                    <option value="Lebedenco">Lebedenco</option>
+                    <option value="Badicul Moldovenesc">Badicul Moldovenesc</option>
+                    <option value="Cucoara">Cucoara</option>
+                    <option value="Giurgiulești">Giurgiulești</option>
+                    <option value="Văleni">Văleni</option>
+                    <option value="Huluboaia">Huluboaia</option>
+                    <option value="Vulcănești">Vulcănești</option>
+                    <option value="Pașcani">Pașcani</option>
+                    <option value="Italia">Italia</option>
+                    <option value="Colibași">Colibași</option>
+                    <option value="Tartaul de Salcie">Tartaul de Salcie</option>
+                    <option value="Albota">Albota</option>
+                    <option value="Găvănoasa">Găvănoasa</option>
+                    <option value="Moscovei">Moscovei</option>
+                    <option value="Ursoaia">Ursoaia</option>
+                    <option value="Manta">Manta</option>
+                    <option value="Taraclia">Taraclia</option>
+                    <option value="Vadul lui Isac">Vadul lui Isac</option>
+                    <option value="Alexandru Ioan Cuza">Alexandru Ioan Cuza</option>
+                    <option value="Bucuria">Bucuria</option>
+                    <option value="Larga Nouă">Larga Nouă</option>
+                    <option value="Gotești">Gotești</option>
+                    <option value="Crihana Veche">Crihana Veche</option>
+                    <option value="Cotihana">Cotihana</option>
+                    <option value="Roșu">Roșu</option>
+                    <option value="Zîrnești">Zîrnești</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label">
+                  <span data-i18n="dash.price_label">Preț (€)</span>
+                  <span class="text-danger">*</span>
+                </label>
+                <input id="price" type="number" step="any" class="form-control" placeholder="67000" required>
+              </div>
+
+              <!-- PROPERTY DETAILS -->
+              <div class="col-12 mt-2">
+                <div class="form-section-title" data-i18n="dash.section_details">Detalii imobil</div>
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label" data-i18n="dash.area_label">Suprafață imobil (m²)</label>
+                <input id="area" type="number" step="any" class="form-control" placeholder="65">
+              </div>
+
+              <div class="col-md-5">
+                <label class="form-label" data-i18n="dash.land_area_label">Suprafața terenului</label>
+                <div class="land-area-group">
+                  <input id="landArea" type="number" step="any" class="form-control" placeholder="0">
+                  <select id="landAreaUnit" class="form-select">
+                    <option value="ha">ha</option>
+                    <option value="ac">ac</option>
+                    <option value="ari" selected>ari</option>
+                    <option value="m²">m²</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" data-i18n="dash.rooms_label">Nr. camere</label>
+                <input id="rooms" type="number" min="0" class="form-control" placeholder="2">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" data-i18n="dash.bathrooms_label">Grup sanitar</label>
+                <input id="bathrooms" type="number" min="0" class="form-control" placeholder="1">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" data-i18n="dash.floor_label">Etaj</label>
+                <input id="floor" type="number" min="0" class="form-control" placeholder="3">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" data-i18n="dash.total_floors_label">Total etaje</label>
+                <input id="totalFloors" type="number" min="0" class="form-control" placeholder="5">
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label" data-i18n="dash.ceiling_label">Înălțimea camerelor (m)</label>
+                <input id="ceilingHeight" type="number" step="0.01" class="form-control" placeholder="2.70">
+              </div>
+
+              <div class="col-md-3">
+                <label class="form-label" data-i18n="dash.kitchen_label">Suprafața bucătăriei (m²)</label>
+                <input id="kitchenAera" type="number" step="any" class="form-control" placeholder="12">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" data-i18n="dash.balconies_label">Balcoane</label>
+                <input id="balconies" type="number" min="0" class="form-control" placeholder="1">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label" data-i18n="dash.garages_label">Garaje</label>
+                <input id="garages" type="number" min="0" class="form-control" placeholder="0">
+              </div>
+
+              <!-- FEATURES -->
+              <div class="col-12 mt-2">
+                <div class="form-section-title" data-i18n="dash.section_features_prop">Caracteristici imobiliare</div>
+              </div>
+              <div class="col-12">
+                <label class="form-label">
+                  <span data-i18n="dash.features_label">Caracteristici</span>
+                  <small class="text-muted" data-i18n="dash.features_hint"> (selectează oricâte dorești)</small>
+                </label>
+                <div class="features-tags" id="featuresTags"></div>
+                <div class="feature-search-wrapper">
+                  <input id="featuresSearch" class="feature-search" type="search" data-i18n="dash.features_search_ph"
+                    data-i18n-attr="placeholder" placeholder="Caută caracteristici..."
+                    aria-label="Caută caracteristici">
+                  <button type="button" class="feature-search-clear" id="featuresSearchClear" aria-label="✕">✕</button>
+                </div>
+                <div class="features-multiselect" id="featuresMultiselect"></div>
+              </div>
+
+              <!-- IMAGES -->
+              <div class="col-12 mt-2">
+                <div class="form-section-title" data-i18n="dash.section_images">Imagini</div>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label" data-i18n="dash.images_label">Imagini proprietate</label>
+                <input type="file" id="imageInput" class="form-control" multiple accept="image/*">
+                <div id="imagePreview" class="preview-grid"></div>
+              </div>
+
+              <div class="col-12 d-flex gap-2 pt-2">
+                <button type="submit" class="btn btn-danger" data-i18n="dash.publish_btn">Publică</button>
+                <button id="resetBtn" type="button" class="btn btn-outline-secondary"
+                  data-i18n="dash.reset_btn">Resetare</button>
+              </div>
+              <div class="col-12">
+                <div id="formMsg" class="small-muted"></div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div><!-- /app -->
+
+  <div class="sidebar-overlay" aria-hidden="true"></div>
+
+  <!-- Edit property modal -->
+  <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:14px;border:0;">
+
+        <div class="modal-header">
+          <h5 class="modal-title" data-i18n="dash.edit_modal_title">Editează proprietatea</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" data-i18n="dash.close_btn"
+            data-i18n-attr="aria-label" aria-label="Închide"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="small-muted" style="display:none;">ID: <span id="editId"
+                class="badge text-bg-dark badge-code">-</span></div>
+            <div class="small-muted">
+              <span data-i18n="dash.cod_label">Cod:</span>
+              <span id="editCode" class="badge text-bg-secondary badge-code">-----</span>
+            </div>
+          </div>
+
+          <form id="editForm" class="row g-3">
+
+            <!-- Auto title -->
+            <div class="col-12">
+              <label class="form-label" data-i18n="dash.edit_title_auto">Titlu generat automat</label>
+              <div class="title-preview" id="e_titlePreview">—</div>
+            </div>
+
+            <!-- Status -->
+            <div class="col-12">
+              <label class="form-label" data-i18n="dash.edit_status_label">Status proprietate</label>
+              <div id="e_statusGroup" class="btn-group w-100" role="group" data-i18n="dash.edit_status_label"
+                data-i18n-attr="aria-label" aria-label="Status proprietate">
+                <button type="button" class="btn btn-outline-success" data-status="active"
+                  data-i18n="dash.status_active">Activ</button>
+                <button type="button" class="btn btn-outline-secondary" data-status="stopped"
+                  data-i18n="dash.status_stopped">Stopat</button>
+                <button type="button" class="btn btn-outline-danger" data-status="sold"
+                  data-i18n="dash.status_sold">Vândut</button>
+                <button type="button" class="btn btn-outline-warning" data-status="rented"
+                  data-i18n="dash.status_rented">Închiriat</button>
+              </div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">
+                <span data-i18n="dash.transaction_type">Tip tranzacție</span>
+                <span class="text-danger">*</span>
+              </label>
+              <select id="e_transactionType" class="form-select">
+                <option value="sale" data-i18n="dash.sale_opt">Vânzare</option>
+                <option value="rent" data-i18n="dash.rent_opt">Chirie</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">
+                <span data-i18n="dash.property_type_label">Tip Imobil</span>
+                <span class="text-danger">*</span>
+              </label>
+              <select id="e_propertyType" class="form-select" required>
+                <option value="" disabled data-i18n="dash.opt_select_blank">— Selectează —</option>
+                <option value="Apartament la sol" data-i18n="dash.prop_type_apartament_sol">Apartament la sol</option>
+                <option value="Apartament" data-i18n="dash.prop_type_apartament">Apartament</option>
+                <option value="Casă" data-i18n="dash.prop_type_casa">Casă</option>
+                <option value="Jumătate de casă" data-i18n="dash.prop_type_jumatate_casa">Jumătate de casă</option>
+                <option value="Comercial" data-i18n="dash.prop_type_comercial">Comercial</option>
+                <option value="Restaurant" data-i18n="dash.prop_type_restaurant">Restaurant</option>
+                <option value="Bar" data-i18n="dash.prop_type_bar">Bar</option>
+                <option value="Oficiu" data-i18n="dash.prop_type_oficiu">Oficiu</option>
+                <option value="Magazin" data-i18n="dash.prop_type_magazin">Magazin</option>
+                <option value="Depozit" data-i18n="dash.prop_type_depozit">Depozit</option>
+                <option value="Terenuri" data-i18n="dash.prop_type_terenuri">Terenuri</option>
+                <option value="Teren pentru construcții" data-i18n="dash.prop_type_teren_constructii">Teren pentru construcții</option>
+                <option value="Teren Agricol" data-i18n="dash.prop_type_teren_agricol">Teren Agricol</option>
+                <option value="Garaj" data-i18n="dash.prop_type_garaj">Garaj</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">
+                <span data-i18n="dash.location_label">Amplasarea</span>
+                <span class="text-danger">*</span>
+              </label>
+              <select id="e_region" class="form-select" required>
+                <option value="" disabled data-i18n="dash.opt_select_blank">— Selectează —</option>
+                <optgroup data-i18n="dash.opt_cahul_group" data-i18n-attr="label" label="Cahul — subzone">
+                  <option value="Cahul">Cahul</option>
+                  <option value="Centru-Policlinica">Centru-Policlinica</option>
+                  <option value="Focșa">Focșa</option>
+                  <option value="Centru-str.Pușkin">Centru-str.Pușkin</option>
+                  <option value="Spirin">Spirin</option>
+                  <option value="Centru-Baia Publică">Centru-Baia Publică</option>
+                  <option value="Lapaevca">Lapaevca</option>
+                  <option value="Fabrica de Vinuri">Fabrica de Vinuri</option>
+                  <option value="Gebhardt">Gebhardt</option>
+                  <option value="Centru">Centru</option>
+                  <option value="Autogara">Autogara</option>
+                  <option value="Jubileu">Jubileu</option>
+                  <option value="Ghidro">Ghidro</option>
+                  <option value="Lipovanca">Lipovanca</option>
+                  <option value="Calea Ferată">Calea Ferată</option>
+                  <option value="Micro 15">Micro 15</option>
+                  <option value="PMK 10">PMK 10</option>
+                  <option value="Valincea">Valincea</option>
+                  <option value="Centru-Șurin Magazin">Centru-Șurin Magazin</option>
+                  <option value="Centru-str.Creangă">Centru-str.Creangă</option>
+                </optgroup>
+                <optgroup data-i18n="dash.opt_other_group" data-i18n-attr="label" label="Alte localități">
+                  <option value="România">România</option>
+                  <option value="Bulgaria">Bulgaria</option>
+                  <option value="Turcia">Turcia</option>
+                  <option value="Pelinei">Pelinei</option>
+                  <option value="Balabanu">Balabanu</option>
+                  <option value="Cantemir">Cantemir</option>
+                  <option value="Leova">Leova</option>
+                  <option value="Taraclia de Salcie">Taraclia de Salcie</option>
+                  <option value="Alexanderfeld">Alexanderfeld</option>
+                  <option value="Andrușul de Jos">Andrușul de Jos</option>
+                  <option value="Andrușul de Sus">Andrușul de Sus</option>
+                  <option value="Lebedenco">Lebedenco</option>
+                  <option value="Badicul Moldovenesc">Badicul Moldovenesc</option>
+                  <option value="Cucoara">Cucoara</option>
+                  <option value="Giurgiulești">Giurgiulești</option>
+                  <option value="Văleni">Văleni</option>
+                  <option value="Huluboaia">Huluboaia</option>
+                  <option value="Vulcănești">Vulcănești</option>
+                  <option value="Burlăceni">Burlăceni</option>
+                  <option value="Pașcani">Pașcani</option>
+                  <option value="Italia">Italia</option>
+                  <option value="Colibași">Colibași</option>
+                  <option value="Tartaul de Salcie">Tartaul de Salcie</option>
+                  <option value="Albota de Jos">Albota de Jos</option>
+                  <option value="Albota de Sus">Albota de Sus</option>
+                  <option value="Găvănoasa">Găvănoasa</option>
+                  <option value="Moscovei">Moscovei</option>
+                  <option value="Ursoaia">Ursoaia</option>
+                  <option value="Manta">Manta</option>
+                  <option value="Taraclia">Taraclia</option>
+                  <option value="Vadul lui Isac">Vadul lui Isac</option>
+                  <option value="Alexandru Ioan Cuza">Alexandru Ioan Cuza</option>
+                  <option value="Bucuria">Bucuria</option>
+                  <option value="Larga Nouă">Larga Nouă</option>
+                  <option value="Gotești">Gotești</option>
+                  <option value="Crihana Veche">Crihana Veche</option>
+                  <option value="Cotihana">Cotihana</option>
+                  <option value="Roșu">Roșu</option>
+                  <option value="Zîrnești">Zîrnești</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">
+                <span data-i18n="dash.price_label">Preț (€)</span>
+                <span class="text-danger">*</span>
+              </label>
+              <input id="e_price" type="number" step="any" class="form-control" required>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" data-i18n="dash.area_label">Suprafață imobil (m²)</label>
+              <input id="e_area" type="number" step="any" class="form-control">
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label" data-i18n="dash.land_area_label">Suprafața terenului</label>
+              <div class="land-area-group">
+                <input id="e_landArea" type="number" step="any" class="form-control" placeholder="0">
+                <select id="e_landAreaUnit" class="form-select">
+                  <option value="ha">ha</option>
+                  <option value="ac">ac</option>
+                  <option value="ari" selected>ari</option>
+                  <option value="m²">m²</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" data-i18n="dash.rooms_label">Nr. camere</label>
+              <input id="e_rooms" type="number" min="0" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" data-i18n="dash.bathrooms_label">Grup sanitar</label>
+              <input id="e_bathrooms" type="number" min="0" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" data-i18n="dash.floor_label">Etaj</label>
+              <input id="e_floor" type="number" min="0" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" data-i18n="dash.total_floors_label">Total etaje</label>
+              <input id="e_totalFloors" type="number" min="0" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" data-i18n="dash.ceiling_label">Înălțimea camerelor (m)</label>
+              <input id="e_ceilingHeight" type="number" step="0.01" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label" data-i18n="dash.kitchen_label">Suprafața bucătăriei (m²)</label>
+              <input id="e_kitchenAera" type="number" step="any" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" data-i18n="dash.balconies_label">Balcoane</label>
+              <input id="e_balconies" type="number" min="0" class="form-control">
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label" data-i18n="dash.garages_label">Garaje</label>
+              <input id="e_garages" type="number" min="0" class="form-control">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">
+                <span data-i18n="dash.features_label">Caracteristici</span>
+                <small class="text-muted" data-i18n="dash.features_hint"> (selectează oricâte dorești)</small>
+              </label>
+              <div class="features-tags" id="e_featuresTags"></div>
+              <div class="feature-search-wrapper">
+                <input id="e_featuresSearch" class="feature-search" type="search" data-i18n="dash.features_search_ph"
+                  data-i18n-attr="placeholder" placeholder="Caută caracteristici..." aria-label="Caută caracteristici">
+                <button type="button" class="feature-search-clear" id="e_featuresSearchClear" aria-label="✕">✕</button>
+              </div>
+              <div class="features-multiselect" id="e_featuresMultiselect"></div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" data-i18n="dash.existing_images_label">Imagini existente</label>
+              <div id="existingPreview" class="preview-grid"></div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label" data-i18n="dash.add_images_label">Adaugă imagini noi</label>
+              <input type="file" id="editImageInput" class="form-control" multiple accept="image/*">
+              <div id="newPreview" class="preview-grid"></div>
+            </div>
+
+            <div class="col-12">
+              <div id="editMsg" class="small-muted"></div>
+            </div>
+          </form>
+        </div><!-- /modal-body -->
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="dash.close_btn">Închide</button>
+          <button id="saveEditBtn" class="btn btn-danger" data-i18n="dash.save_btn">Salvează</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- User edit modal -->
+  <div class="modal fade" id="userEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:14px;border:0;">
+        <div class="modal-header">
+          <h5 class="modal-title" data-i18n="dash.user_edit_title">Editează utilizator</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" data-i18n="dash.close_btn"
+            data-i18n-attr="aria-label" aria-label="Închide"></button>
+        </div>
+        <div class="modal-body">
+          <div class="visually-hidden">
+            <span id="ue_uid" class="badge text-bg-dark badge-code">-</span>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label" data-i18n="dash.name_label">Nume</label>
+              <input id="ue_name" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" data-i18n="dash.phone_label">Telefon</label>
+              <input id="ue_phone" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" data-i18n="dash.email_label">Email</label>
+              <input id="ue_email" class="form-control" disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label" data-i18n="dash.role_label">Rol</label>
+              <select id="ue_role" class="form-select">
+                <option value="" disabled selected data-i18n="dash.role_ph">Selectează</option>
+                <option value="agent">agent</option>
+                <option value="admin">admin</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" data-i18n="dash.current_photo_label">Poză curentă</label>
+              <div class="preview-grid" id="ue_currentPhotoPreview"></div>
+            </div>
+            <div class="col-12">
+              <label class="form-label" data-i18n="dash.change_photo_label">Schimbă poza</label>
+              <input id="ue_photo" type="file" class="form-control" accept="image/*">
+              <div id="ue_photoPreview" class="preview-grid"></div>
+            </div>
+            <div class="col-12">
+              <div id="ue_msg" class="small-muted"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between">
+          <button id="ue_delete" class="btn btn-outline-danger">
+            <i class="fa fa-trash"></i>
+            <span data-i18n="dash.delete_btn">Șterge</span>
+          </button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary" data-bs-dismiss="modal"
+              data-i18n="dash.close_btn">Închide</button>
+            <button id="ue_save" class="btn btn-danger" data-i18n="dash.save_btn">Salvează</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/choices.js@11.0.2/public/assets/scripts/choices.min.js"></script>
+  <script type="module" src="../js/dashboard.js"></script>
+
+</body>
+
+</html>
