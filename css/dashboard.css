@@ -279,18 +279,18 @@
       transform: translateY(-50%);
       border: none;
       background: transparent;
-      color: #b71c1c;
+      color: #e53935;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
       padding: 0;
       line-height: 1;
-      opacity: .75;
+      opacity: 1;
     }
 
     .feature-search-clear:hover {
       opacity: 1;
-      color: #d32f2f;
+      color: #b71c1c;
     }
 
     .feature-option {
