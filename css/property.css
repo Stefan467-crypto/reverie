@@ -1080,8 +1080,3 @@ body.lightbox-open {
         transform: scale(1);
     }
 }
-@media (min-width: 1147px) {
-    .property-wrapper{
-        margin-top: 100px;
-    }
-}

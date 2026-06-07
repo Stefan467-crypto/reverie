@@ -370,7 +370,7 @@ lightbox.innerHTML = `
     <div class="lightbox-image-wrapper">
       <img id="lbImg" class="lightbox-image" src="" alt="">
       <div class="image-watermark" aria-hidden="true">
-        <img src="../images/wmark.png" alt="Reverie watermark"
+        <img src="../../images/wmark.png" alt="Reverie watermark"
           style="width:180px;max-width:180px;height:auto;object-fit:contain;opacity:0.42;">
       </div>
       <div class="lightbox-status" id="lbStatus">
