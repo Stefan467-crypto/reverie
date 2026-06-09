@@ -15,7 +15,7 @@
   <link href="css/i18n.css" rel="stylesheet">
   <link rel="shortcut icon" href="https://reverie.md/wp-content/uploads/2017/08/cropped-ReverieIcon512.png">
   <!-- Lang restore: prevents flash of untranslated content -->
-  <script>(function(){try{document.documentElement.lang=localStorage.getItem("reverie_lang")||"ro"}catch(e){}})()</script>
+  <script>(function () { try { document.documentElement.lang = localStorage.getItem("reverie_lang") || "ro" } catch (e) { } })()</script>
 </head>
 
 <body data-meta-title="meta.home_title" data-meta-desc="meta.home_desc">
@@ -198,34 +198,6 @@
                 data-i18n="offers.filter_reset">Resetare</button>
             </div>
 
-            <div class="mb-3">
-              <label for="searchInput" class="form-label small mb-2" data-i18n="offers.filter_search">Căutare
-                titlu</label>
-              <input id="searchInput" type="search" class="form-control" placeholder="Caută după titlu..."
-                data-i18n-attr="placeholder" data-i18n="offers.filter_search_ph">
-            </div>
-
-            <div class="mb-3">
-              <label for="codeFilter" class="form-label small mb-2" data-i18n="offers.filter_code">Cod
-                apartament</label>
-              <input id="codeFilter" type="text" class="form-control" placeholder="Ex: 38283, 87543..."
-                data-i18n-attr="placeholder" data-i18n="offers.filter_code_ph">
-            </div>
-
-            <div class="mb-3">
-              <div class="form-label small mb-2" data-i18n="offers.filter_price">Preț</div>
-              <div class="price-range">
-                <input id="minRange" type="range" min="0" step="500" value="0" aria-label="Minimum price">
-                <input id="maxRange" type="range" min="0" step="500" value="0" aria-label="Maximum price">
-              </div>
-              <div class="d-flex gap-2 mt-2">
-                <input id="minPrice" type="number" class="form-control" placeholder="0" min="0" aria-label="Min price">
-                <div class="d-flex align-items-center px-2">—</div>
-                <input id="maxPrice" type="number" class="form-control" placeholder="Max" min="0"
-                  aria-label="Max price">
-              </div>
-            </div>
-
             <!-- Property type -->
             <div class="mb-3">
               <label for="typeFilterSearch" class="form-label small mb-2" data-i18n="offers.filter_type">Tip
@@ -279,6 +251,28 @@
                   <div class="dropdown-options"></div>
                 </div>
               </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-label small mb-2" data-i18n="offers.filter_price">Preț</div>
+              <div class="price-range">
+                <input id="minRange" type="range" min="0" step="500" value="0" aria-label="Minimum price">
+                <input id="maxRange" type="range" min="0" step="500" value="0" aria-label="Maximum price">
+              </div>
+
+              <div class="d-flex gap-2 mt-2">
+                <input id="minPrice" type="number" class="form-control" placeholder="0" min="0" aria-label="Min price">
+                <div class="d-flex align-items-center px-2">—</div>
+                <input id="maxPrice" type="number" class="form-control" placeholder="Max" min="0"
+                  aria-label="Max price">
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="codeFilter" class="form-label small mb-2" data-i18n="offers.filter_code">Cod
+                apartament</label>
+              <input id="codeFilter" type="text" class="form-control" placeholder="Ex: 38283, 87543..."
+                data-i18n-attr="placeholder" data-i18n="offers.filter_code_ph">
             </div>
           </div>
         </aside>
