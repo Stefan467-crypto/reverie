@@ -12,7 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
 import {
   getFirestore, addDoc, setDoc, collection, getDocs,
-  query, where, deleteDoc, doc, updateDoc, getDoc, orderBy, writeBatch,
+  query, where, deleteDoc, doc, updateDoc, getDoc, orderBy, writeBatch, serverTimestamp,
 } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 import {
@@ -394,6 +394,7 @@ function showView(name) {
   if (pageTitle) pageTitle.textContent = t(entry.titleKey);
   if (pageSubtitle) pageSubtitle.textContent = t(entry.subtitleKey);
 
+  if (name === "home") loadStats();
   if (name === "my") loadMyProperties();
   if (name === "all") { if (!isAdmin) return showView("home"); loadAllProperties(); }
   if (name === "users") { if (!isAdmin) return showView("home"); loadUsers(); }
@@ -558,6 +559,171 @@ async function loadMyProperties() {
     console.error(e);
     if (myPropsStatus) myPropsStatus.textContent = t("dash.load_error");
     setMyMsg(t("dash.err_load", { msg: e?.message || e }), false);
+  }
+}
+
+
+// ── Statistics for home view
+let _viewsChartInstance = null;
+
+async function loadStats() {
+  if (!currentUser) return;
+  const loading = document.getElementById("statsLoading");
+  const statsContent = document.getElementById("statsContent");
+  if (loading) loading.style.display = "";
+  if (statsContent) statsContent.style.display = "none";
+
+  try {
+    const snap = await getDocs(query(
+      collection(db, "properties"),
+      where("agentId", "==", currentUser.uid)
+    ));
+    const items = [];
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+
+    // ── Personal stats
+    const counts = { active: 0, sold: 0, rented: 0, stopped: 0 };
+    items.forEach(p => {
+      const s = normalizeStatus(p.status || p.state || p.availability || "active");
+      if (s === "active")  counts.active++;
+      else if (s === "sold")    counts.sold++;
+      else if (s === "rented")  counts.rented++;
+      else if (s === "stopped") counts.stopped++;
+    });
+    const el = id => document.getElementById(id);
+    if (el("statActive"))  el("statActive").textContent  = counts.active;
+    if (el("statSold"))    el("statSold").textContent    = counts.sold;
+    if (el("statRented"))  el("statRented").textContent  = counts.rented;
+    if (el("statStopped")) el("statStopped").textContent = counts.stopped;
+
+    // ── Views stats (from viewCount / viewLog fields on each property doc)
+    const now = Date.now();
+    const ms7  = 7  * 24 * 60 * 60 * 1000;
+    const ms30 = 30 * 24 * 60 * 60 * 1000;
+    let totalViews = 0, views7d = 0, views30d = 0;
+    let mostViewedTitle = t("dash.stats_most_viewed_none");
+    let mostViewedCount = -1;
+
+    // Build daily buckets for chart (last 30 days)
+    const buckets = {};
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now - i * 24 * 60 * 60 * 1000);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      buckets[key] = 0;
+    }
+
+    items.forEach(p => {
+      const vc = Number(p.viewCount || 0);
+      totalViews += vc;
+      if (vc > mostViewedCount) {
+        mostViewedCount = vc;
+        const title = (p.propertyType && p.region)
+          ? generateTitle(normalizeTransaction(p.transactionType || "sale"), p.propertyType, p.region)
+          : (p.title || "—");
+        mostViewedTitle = `${title} (${vc})`;
+      }
+
+      // viewLog: array of timestamps (ms) or { ts: ms } objects
+      const log = Array.isArray(p.viewLog) ? p.viewLog : [];
+      log.forEach(entry => {
+        const ts = typeof entry === "number" ? entry : (entry?.ts || 0);
+        if (!ts) return;
+        const age = now - ts;
+        if (age <= ms7)  views7d++;
+        if (age <= ms30) {
+          views30d++;
+          const d = new Date(ts);
+          const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+          if (key in buckets) buckets[key]++;
+        }
+      });
+    });
+
+    if (el("statViewsTotal")) el("statViewsTotal").textContent = totalViews;
+    if (el("statViews7d"))    el("statViews7d").textContent    = views7d;
+    if (el("statViews30d"))   el("statViews30d").textContent   = views30d;
+    if (el("statMostViewed")) el("statMostViewed").textContent = mostViewedCount >= 0 ? mostViewedTitle : t("dash.stats_most_viewed_none");
+
+    // ── Activity stats
+    const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
+    const som = startOfMonth.getTime();
+    let addedMonth = 0, modifiedMonth = 0, lastActivityTs = 0;
+
+    function tsToMs(v) {
+      if (!v) return 0;
+      if (typeof v.toMillis === "function") return v.toMillis();
+      if (typeof v.seconds === "number") return v.seconds * 1000;
+      if (typeof v === "number") return v;
+      return 0;
+    }
+
+    items.forEach(p => {
+      const created  = tsToMs(p.createdAt);
+      const modified = tsToMs(p.updatedAt);
+      if (created  >= som) addedMonth++;
+      if (modified >= som) modifiedMonth++;
+      const latest = Math.max(created, modified);
+      if (latest > lastActivityTs) lastActivityTs = latest;
+    });
+
+    if (el("statAddedMonth"))    el("statAddedMonth").textContent    = addedMonth;
+    if (el("statModifiedMonth")) el("statModifiedMonth").textContent = modifiedMonth;
+    if (el("statLastActivity")) {
+      if (lastActivityTs) {
+        const lang = getCurrentLanguage();
+        const locale = lang === "en" ? "en-GB" : lang === "ru" ? "ru-RU" : "ro-RO";
+        el("statLastActivity").textContent = new Date(lastActivityTs).toLocaleDateString(locale, { day:"numeric", month:"short", year:"numeric" });
+      } else {
+        el("statLastActivity").textContent = t("dash.stats_last_activity_none");
+      }
+    }
+
+    // ── Chart
+    const chartCanvas = el("viewsChart");
+    const noViewsEl   = el("statsNoViews");
+    const hasViewLog  = Object.values(buckets).some(v => v > 0);
+
+    if (chartCanvas && noViewsEl) {
+      if (!hasViewLog) {
+        noViewsEl.style.display = "";
+        chartCanvas.style.display = "none";
+      } else {
+        noViewsEl.style.display = "none";
+        chartCanvas.style.display = "";
+        if (_viewsChartInstance) { _viewsChartInstance.destroy(); _viewsChartInstance = null; }
+        _viewsChartInstance = new Chart(chartCanvas, {
+          type: "bar",
+          data: {
+            labels: Object.keys(buckets).map(k => {
+              const [, m, d] = k.split("-");
+              return `${d}/${m}`;
+            }),
+            datasets: [{
+              label: t("dash.stats_views_30d"),
+              data: Object.values(buckets),
+              backgroundColor: "rgba(183,28,28,0.18)",
+              borderColor: "rgba(183,28,28,0.75)",
+              borderWidth: 1.5,
+              borderRadius: 4,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+              y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } }
+            }
+          }
+        });
+      }
+    }
+
+  } catch (e) {
+    console.error("loadStats error:", e);
+  } finally {
+    if (loading) loading.style.display = "none";
+    if (statsContent) statsContent.style.display = "";
   }
 }
 
@@ -1097,6 +1263,7 @@ saveEditBtn?.addEventListener("click", async () => {
       floor: floor ?? null, totalFloors: totalFloors ?? null,
       ceilingHeight: ceilingHeight ?? null, balconies: balconies ?? null, garages: garages ?? null,
       features, images: finalImages, mainImage,
+      updatedAt: serverTimestamp(),
     });
     setEditMsg(t("dash.msg_saved"), true);
     await loadMyProperties();
@@ -1155,6 +1322,7 @@ form?.addEventListener("submit", async e => {
       floor: floor ?? null, totalFloors: totalFloors ?? null,
       ceilingHeight: ceilingHeight ?? null, balconies: balconies ?? null, garages: garages ?? null,
       features, images: imageUrls, mainImage: imageUrls[0] || "",
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     });
     setFormMsg(t("dash.msg_published"), true);
     form.reset();
@@ -1489,6 +1657,7 @@ function refreshAllDynamicText() {
 
   if (!myPropsGrid?.querySelector(".card")) return;
   loadMyProperties();
+  if (currentViewName === "home") loadStats();
   if (isAdmin) { loadAllProperties(); renderUsersTable(); }
 }
 
@@ -1555,5 +1724,6 @@ onAuthStateChanged(auth, async user => {
   if (isAdmin) { await loadUsers(); await loadAllProperties(); }
   await loadMyProperties();
   if (homeMsg) homeMsg.textContent = isAdmin ? t("dash.msg_admin") : t("dash.msg_agent");
+  await loadStats();
   showView("home");
 });

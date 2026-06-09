@@ -398,6 +398,25 @@
     "notes_title": "My Notes",
     "notes_ph": "New note... (e.g.: Call client Popescu at 14:00)",
     "notes_empty": "No notes yet. Add your first one!",
-    "notes_delete": "Delete"
+    "notes_delete": "Delete",
+    "stats_section_personal": "Personal Statistics",
+    "stats_active": "Active properties",
+    "stats_sold": "Sold properties",
+    "stats_rented": "Rented properties",
+    "stats_stopped": "Stopped properties",
+    "stats_section_perf": "Listing Performance",
+    "stats_views_total": "Total views",
+    "stats_views_7d": "Views — last 7 days",
+    "stats_views_30d": "Views — last 30 days",
+    "stats_most_viewed": "Most viewed property",
+    "stats_most_viewed_none": "—",
+    "stats_section_activity": "Recent Activity",
+    "stats_added_month": "Properties added this month",
+    "stats_modified_month": "Properties modified this month",
+    "stats_last_activity": "Last activity",
+    "stats_last_activity_none": "—",
+    "stats_chart_title": "Views over the last 30 days",
+    "stats_loading": "Calculating statistics...",
+    "stats_no_views": "No view data available"
   }
 }

@@ -398,6 +398,25 @@
     "notes_title": "Мои заметки",
     "notes_ph": "Новая заметка... (напр.: Позвонить клиенту Попеску в 14:00)",
     "notes_empty": "Заметок пока нет. Добавьте первую!",
-    "notes_delete": "Удалить"
+    "notes_delete": "Удалить",
+    "stats_section_personal": "Личная статистика",
+    "stats_active": "Активные объекты",
+    "stats_sold": "Проданные объекты",
+    "stats_rented": "Арендованные объекты",
+    "stats_stopped": "Остановленные объекты",
+    "stats_section_perf": "Эффективность объявлений",
+    "stats_views_total": "Всего просмотров",
+    "stats_views_7d": "Просмотры — последние 7 дней",
+    "stats_views_30d": "Просмотры — последние 30 дней",
+    "stats_most_viewed": "Самый просматриваемый объект",
+    "stats_most_viewed_none": "—",
+    "stats_section_activity": "Недавняя активность",
+    "stats_added_month": "Объектов добавлено в этом месяце",
+    "stats_modified_month": "Объектов изменено в этом месяце",
+    "stats_last_activity": "Последняя активность",
+    "stats_last_activity_none": "—",
+    "stats_chart_title": "Просмотры за последние 30 дней",
+    "stats_loading": "Вычисление статистики...",
+    "stats_no_views": "Нет данных о просмотрах"
   }
 }

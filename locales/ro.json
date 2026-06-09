@@ -398,6 +398,25 @@
     "notes_title": "Notițele mele",
     "notes_ph": "Notița nouă... (ex: Sună clientul Popescu la 14:00)",
     "notes_empty": "Nicio notița. Adaugă prima ta notița!",
-    "notes_delete": "Șterge"
+    "notes_delete": "Șterge",
+    "stats_section_personal": "Statistici personale",
+    "stats_active": "Proprietăți active",
+    "stats_sold": "Proprietăți vândute",
+    "stats_rented": "Proprietăți închiriate",
+    "stats_stopped": "Proprietăți stopate",
+    "stats_section_perf": "Performanța anunțurilor",
+    "stats_views_total": "Vizualizări totale",
+    "stats_views_7d": "Vizualizări — ultimele 7 zile",
+    "stats_views_30d": "Vizualizări — ultimele 30 zile",
+    "stats_most_viewed": "Proprietatea cea mai vizualizată",
+    "stats_most_viewed_none": "—",
+    "stats_section_activity": "Activitate recentă",
+    "stats_added_month": "Proprietăți adăugate luna aceasta",
+    "stats_modified_month": "Proprietăți modificate luna aceasta",
+    "stats_last_activity": "Ultima activitate",
+    "stats_last_activity_none": "—",
+    "stats_chart_title": "Vizualizări pe ultimele 30 de zile",
+    "stats_loading": "Se calculează statisticile...",
+    "stats_no_views": "Nu există date de vizualizare"
   }
 }
