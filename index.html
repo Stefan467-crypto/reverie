@@ -289,6 +289,9 @@
   </section>
   <!-- APARTMENTS / LISTINGS SECTION -->
   <section class="apartments-section py-5" id="oferte">
+    <div class="text-center mb-5">
+      <h2 class="display-6" data-i18n="navbar.offers">Ofertele Noastre</h2>
+    </div>
     <div class="container">
       <div class="row gy-4">
 
@@ -386,11 +389,10 @@
           </div>
         </aside>
 
-        <!-- Listings -->
         <main class="col-lg-8 col-md-8 col-12">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <h1 class="m-0" data-i18n="offers.objects">Obiecte</h1>
-            <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+            <h4 class="m-0" data-i18n="offers.objects">Obiecte</h4>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
               <div class="small text-muted" id="resultsCount">Arată: 0</div>
               <div class="sort-dropdown" id="sortDropdown">
                 <button id="sortToggle" class="sort-toggle" aria-expanded="false">
@@ -405,6 +407,7 @@
               </div>
             </div>
           </div>
+          
           <div class="row" id="apartmentsGrid"></div>
         </main>
 

@@ -55,8 +55,6 @@ export async function initCategoryStats() {
 
     snap.forEach(doc => {
       const data = doc.data();
-      const status = normalizeStatus(data.status || data.state || data.availability || "active");
-      if (status !== "active") return; // count only active listings
 
       const canonical = normalizeType(data.propertyType || "");
       if (canonical in counts) counts[canonical]++;

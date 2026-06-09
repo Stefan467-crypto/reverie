@@ -129,6 +129,7 @@ function renderProjectsSection() {
     if (!needsMarquee) {
       grid.classList.remove("projects-grid-row--marquee");
       grid.style.animation = "none";
+      grid.style.justifyContent = "center";
       grid.dataset.dupCount = "0";
       return;
     }
@@ -137,6 +138,7 @@ function renderProjectsSection() {
     grid.innerHTML = "";
     grid.classList.add("projects-grid-row--marquee");
     grid.style.animation = "projects-marquee 24s linear infinite";
+    grid.style.justifyContent = "flex-start";
     grid.dataset.dupCount = String(items.length);
 
     duplicated.forEach(project => {
@@ -505,7 +507,7 @@ async function loadWatermarkImg() {
   return new Promise(resolve => {
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.onload  = () => { _wmCache = img; resolve(img); };
+    img.onload = () => { _wmCache = img; resolve(img); };
     img.onerror = () => resolve(null);
     img.src = WATERMARK_SRC;
   });
@@ -516,7 +518,7 @@ async function compositeWatermark(photoUrl) {
     new Promise((res, rej) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.onload  = () => res(img);
+      img.onload = () => res(img);
       img.onerror = () => rej(new Error("photo load failed"));
       img.src = photoUrl;
     }),
@@ -524,7 +526,7 @@ async function compositeWatermark(photoUrl) {
   ]);
 
   const canvas = document.createElement("canvas");
-  canvas.width  = photo.naturalWidth  || photo.width;
+  canvas.width = photo.naturalWidth || photo.width;
   canvas.height = photo.naturalHeight || photo.height;
   const ctx = canvas.getContext("2d");
   ctx.drawImage(photo, 0, 0);
@@ -532,8 +534,8 @@ async function compositeWatermark(photoUrl) {
   if (wm) {
     const wmW = canvas.width * 0.35;
     const wmH = (wm.naturalHeight / wm.naturalWidth) * wmW;
-    const x   = (canvas.width  - wmW) / 2;
-    const y   = (canvas.height - wmH) / 2;
+    const x = (canvas.width - wmW) / 2;
+    const y = (canvas.height - wmH) / 2;
     ctx.globalAlpha = 0.42;
     ctx.drawImage(wm, x, y, wmW, wmH);
     ctx.globalAlpha = 1;
@@ -886,22 +888,26 @@ async function initPropertyGrid() {
       c: norm(codeFilter?.value || ""),
       minP: minPriceInput?.value ? Number(minPriceInput.value) : null,
       maxP: maxPriceInput?.value ? Number(maxPriceInput.value) : null,
-      selectedTypes: ddType?.getSelectedValues() ?? [],
-      selectedRooms: ddRooms?.getSelectedValues() ?? [],
+      selectedTypes: [...(ddType?.getSelectedValues() ?? []), ...Array.from(document.querySelectorAll('.sub-filter-btn.active[data-filter-type="type"]')).map(b => b.getAttribute('data-filter-val')).filter(v => v !== "")],
+      selectedRooms: [...(ddRooms?.getSelectedValues() ?? []), ...Array.from(document.querySelectorAll('.sub-filter-btn.active[data-filter-type="rooms"]')).map(b => b.getAttribute('data-filter-val')).filter(v => v !== "")],
       selectedLoc: ddRaions?.getSelectedValues() ?? [],
     };
   }
 
-  const COMMERCIAL_SUBTYPES_FILTER = new Set(["Restaurant", "Bar", "Oficiu", "Magazin", "Depozit", "Comercial"]);
-  const LAND_SUBTYPES_FILTER = new Set(["Teren pentru construcții", "Teren Agricol", "Terenuri", "Teren"]);
+  const COMMERCIAL_SUBTYPES_FILTER = new Set(["Restaurant", "Bar", "Oficiu", "Magazin", "Depozit", "Comercial"].map(norm));
+  const LAND_SUBTYPES_FILTER = new Set(["Teren pentru construcții", "Teren Agricol", "Terenuri", "Teren"].map(norm));
 
   function matchesTypeFilter(rawPropType, canonical, selectedTypes) {
     if (!selectedTypes.length) return true;
-    if (selectedTypes.includes(rawPropType) || selectedTypes.includes(canonical)) return true;
+    const normTypes = selectedTypes.map(norm);
+    const nRaw = norm(rawPropType);
+    const nCan = norm(canonical);
 
-    if (selectedTypes.includes("commercial") && COMMERCIAL_SUBTYPES_FILTER.has(rawPropType)) return true;
+    if (normTypes.includes(nRaw) || normTypes.includes(nCan)) return true;
 
-    if (selectedTypes.includes("land") && LAND_SUBTYPES_FILTER.has(rawPropType)) return true;
+    if (normTypes.includes("commercial") && COMMERCIAL_SUBTYPES_FILTER.has(nRaw)) return true;
+
+    if (normTypes.includes("land") && LAND_SUBTYPES_FILTER.has(nRaw)) return true;
     return false;
   }
 
@@ -926,7 +932,12 @@ async function initPropertyGrid() {
       const titleOk = !st.q || title.includes(st.q);
       const codeOk = !st.c || code.includes(st.c);
       const typeOk = matchesTypeFilter(rawPropType, type, st.selectedTypes);
-      const roomsOk = !st.selectedRooms.length || st.selectedRooms.includes(rooms);
+      const roomsOk = !st.selectedRooms.length || st.selectedRooms.some(r => {
+        const nr = norm(r);
+        const nRoom = norm(rooms);
+        if (nr === "4+" || nr === "4") return parseInt(nRoom) >= 4;
+        return nr === nRoom;
+      });
       let priceOk = true;
       if (st.minP !== null && price !== null) priceOk = price >= st.minP;
       if (st.maxP !== null && price !== null) priceOk = priceOk && price <= st.maxP;
@@ -1065,13 +1076,24 @@ async function initPropertyGrid() {
     ddRooms?.setOptions(rooms);
     ddRaions?.setOptions(raions);
   }
-
   onLanguageChange(() => { if (grid.children.length > 0) rebuildOptionsFromCards(); });
 
   grid.innerHTML = `<p>${t("offers.loading")}</p>`;
   try {
     const agentId = getQueryParam("agent");
-    const items = await fetchProperties(agentId);
+    let items = await fetchProperties(agentId);
+
+    const pageCategory = document.body.getAttribute("data-page-category");
+    if (pageCategory) {
+      items = items.filter(p => {
+        const type = normalizeType(p.propertyType || "");
+        const rawPropType = p.propertyType || "";
+        const nRaw = norm(rawPropType);
+        if (pageCategory === "commercial" && COMMERCIAL_SUBTYPES_FILTER.has(nRaw)) return true;
+        if (pageCategory === "land" && LAND_SUBTYPES_FILTER.has(nRaw)) return true;
+        return nRaw === pageCategory || type === pageCategory;
+      });
+    }
 
     if (!items.length) {
       grid.innerHTML = `
@@ -1084,11 +1106,64 @@ async function initPropertyGrid() {
     }
 
     grid.innerHTML = "";
-    items.forEach(p => grid.appendChild(buildCard(p)));
-    originalOrder = Array.from(grid.children);
+    const isDashboard = window.location.pathname.includes("dashboard.html");
+    const adminMode = isDashboard && localStorage.getItem("rv_role") === "admin";
+    const currentAgent = localStorage.getItem("rv_uid");
+
+    originalOrder = [];
+    items.forEach(p => {
+      const col = buildCard(p);
+      if (isDashboard) {
+        let isMine = false;
+        if (adminMode) { isMine = true; }
+        else if (currentAgent && p.agentId === currentAgent) { isMine = true; }
+        if (!isMine) return;
+      }
+      grid.appendChild(col);
+      originalOrder.push(col);
+    });
+
     setPriceMaxFromData(items);
     rebuildOptionsFromCards();
     applyFilters();
+
+    // Attach pill listeners once the grid is populated
+    const subFilterBtns = document.querySelectorAll('.sub-filter-btn');
+    if (subFilterBtns.length > 0) {
+      subFilterBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const fType = btn.getAttribute('data-filter-type');
+          const isAll = !btn.getAttribute('data-filter-val');
+          
+          if (isAll) {
+            // Activate "All", deactivate others
+            document.querySelectorAll(`.sub-filter-btn[data-filter-type="${fType}"]`).forEach(b => {
+               b.classList.toggle('active', b === btn);
+            });
+          } else {
+            // Toggle the clicked button
+            const wasActive = btn.classList.contains('active');
+            
+            // Deactivate all specific buttons
+            document.querySelectorAll(`.sub-filter-btn[data-filter-type="${fType}"]:not([data-filter-val=""])`).forEach(b => {
+               b.classList.remove('active');
+            });
+            
+            if (!wasActive) {
+               btn.classList.add('active');
+               const allBtn = document.querySelector(`.sub-filter-btn[data-filter-type="${fType}"][data-filter-val=""]`);
+               if (allBtn) allBtn.classList.remove('active');
+            } else {
+               const allBtn = document.querySelector(`.sub-filter-btn[data-filter-type="${fType}"][data-filter-val=""]`);
+               if (allBtn) allBtn.classList.add('active');
+            }
+          }
+          applyFilters();
+        });
+      });
+    }
+
   } catch (err) {
     console.error(err);
     grid.innerHTML = `<p class="text-danger">${t("offers.error_load")}</p>`;
