@@ -86,10 +86,14 @@
         <button class="navbtn" data-view="add">
           <span data-i18n="dash.nav_add">Adaugă proprietate</span>
         </button>
+        
         <div id="adminSep" class="small-muted px-1 d-none" style="font-weight:600;opacity:.75;margin-top:10px;"
           data-i18n="dash.nav_admin_sep">Admin</div>
         <button class="navbtn d-none" data-view="all" id="navAllBtn">
           <span data-i18n="dash.nav_admin_panel">Panou Admin</span>
+        </button>
+        <button class="navbtn d-none" data-view="projects" id="navProjectsBtn">
+          <span data-i18n="dash.projects_nav">Projects</span>
         </button>
         <button class="navbtn d-none" data-view="users" id="navUsersBtn">
           <span data-i18n="dash.nav_users">Utilizatori</span>
@@ -286,6 +290,56 @@
             <div id="myPropsStatus" class="small-muted mb-3" data-i18n="dash.loading">Se încarcă...</div>
             <div id="myPropsGrid" class="row g-3"></div>
             <div id="myMsg" class="small-muted mt-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS VIEW -->
+      <section id="view-projects" class="d-none">
+        <div class="card shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+              <div>
+                <h2 class="h5 mb-1" data-i18n="dash.projects_title">Proiecte</h2>
+                
+              </div>
+            </div>
+
+            <form id="projectForm" class="row g-3">
+              <input id="projectId" type="hidden">
+              <div class="col-12 col-md-4">
+                <label class="form-label" data-i18n="dash.projects_title_ro">Titlu RO</label>
+                <input id="projectTitleRo" class="form-control" data-i18n-attr="placeholder" data-i18n="dash.projects_ro_ph" placeholder="Titlu în română" required>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" data-i18n="dash.projects_title_en">Titlu EN</label>
+                <input id="projectTitleEn" class="form-control" data-i18n-attr="placeholder" data-i18n="dash.projects_en_ph" placeholder="Title in English" required>
+              </div>
+              <div class="col-12 col-md-4">
+                <label class="form-label" data-i18n="dash.projects_title_ru">Titlu RU</label>
+                <input id="projectTitleRu" class="form-control" data-i18n-attr="placeholder" data-i18n="dash.projects_ru_ph" placeholder="Название на русском" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" data-i18n="dash.projects_date">Dată</label>
+                <input id="projectDate" type="date" class="form-control" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label" data-i18n="dash.projects_photo">Fotografie</label>
+                <input id="projectPhotoInput" type="file" class="form-control" accept="image/*">
+              </div>
+              <div class="col-12">
+                <div id="projectPhotoPreview" class="project-photo-preview"></div>
+              </div>
+              <div class="col-12 d-flex gap-2">
+                <button type="submit" id="projectSubmitBtn" class="btn btn-danger" data-i18n="dash.projects_add_btn">Adaugă proiect</button>
+                <button id="projectResetBtn" type="button" class="btn btn-outline-secondary" data-i18n="dash.reset_btn">Resetare</button>
+              </div>
+              <div class="col-12"><div id="projectMsg" class="small-muted"></div></div>
+            </form>
+
+            <hr class="my-4">
+            <h6 class="mb-3" data-i18n="dash.projects_saved_title">Proiecte salvate</h6>
+            <div id="projectsList" class="row g-3"></div>
           </div>
         </div>
       </section>
@@ -911,6 +965,53 @@
         <div class="modal-footer">
           <button class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="dash.close_btn">Închide</button>
           <button id="saveEditBtn" class="btn btn-danger" data-i18n="dash.save_btn">Salvează</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project edit modal -->
+  <div class="modal fade" id="projectEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content" style="border-radius:14px;border:0;">
+        <div class="modal-header">
+          <h5 class="modal-title" data-i18n="dash.projects_edit_title">Editează proiectul</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+        </div>
+        <div class="modal-body">
+          <form id="projectEditForm" class="row g-3">
+            <input id="projectEditId" type="hidden">
+            <div class="col-12 col-md-4">
+              <label class="form-label" data-i18n="dash.projects_title_ro">Titlu RO</label>
+              <input id="projectEditTitleRo" class="form-control" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" data-i18n="dash.projects_title_en">Titlu EN</label>
+              <input id="projectEditTitleEn" class="form-control" required>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" data-i18n="dash.projects_title_ru">Titlu RU</label>
+              <input id="projectEditTitleRu" class="form-control" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" data-i18n="dash.projects_date">Dată</label>
+              <input id="projectEditDate" type="date" class="form-control" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" data-i18n="dash.projects_photo">Fotografie</label>
+              <input id="projectEditPhotoInput" type="file" class="form-control" accept="image/*">
+            </div>
+            <div class="col-12">
+              <div id="projectEditPhotoPreview" class="project-photo-preview"></div>
+            </div>
+            <div class="col-12">
+              <div id="projectEditMsg" class="small-muted"></div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="dash.close_btn">Închide</button>
+          <button type="submit" form="projectEditForm" class="btn btn-danger" data-i18n="dash.projects_save_btn">Salvează proiectul</button>
         </div>
       </div>
     </div>

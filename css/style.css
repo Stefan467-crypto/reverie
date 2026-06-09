@@ -245,6 +245,108 @@ a:focus:not(:focus-visible) {
 
 
 /* ─────────────────────────────────────────────────────────
+   PROJECTS SECTION
+───────────────────────────────────────────────────────── */
+.projects-section {
+    background: linear-gradient(180deg, #fff 0%, #fff8f8 100%);
+}
+
+.section-kicker {
+    color: var(--red);
+    text-transform: uppercase;
+    letter-spacing: .18em;
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+.project-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    background: #fff;
+    height: 100%;
+}
+.projects-marquee {
+    overflow: hidden;
+    position: relative;
+}
+
+.projects-grid-row,
+#projectsGrid {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 1rem;
+    width: max-content;
+    min-width: 100%;
+    overflow: hidden;
+    padding-bottom: .35rem;
+    animation: none;
+    will-change: transform;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.projects-grid-row--marquee,
+#projectsGrid.projects-grid-row--marquee {
+    animation: projects-marquee 24s linear infinite;
+}
+
+.projects-grid-row:hover,
+#projectsGrid:hover {
+    animation-play-state: paused;
+}
+
+.projects-grid-row::-webkit-scrollbar,
+#projectsGrid::-webkit-scrollbar {
+    display: none;
+}
+
+@keyframes projects-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+
+@media (max-width: 768px) {
+    .project-card-wrap {
+        flex-basis: 85vw;
+        min-width: 85vw;
+        max-width: 85vw;
+    }
+}
+
+.project-card-wrap {
+    flex: 0 0 320px;
+    min-width: 280px;
+    max-width: 320px;
+    scroll-snap-align: start;
+}
+.project-card img {
+    width: 100%;
+    height: 270px;
+    object-fit: cover;
+}
+
+.project-card .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: .45rem;
+    padding: 1rem 1rem 1.05rem;
+}
+
+.project-card h6 {
+    font-size: 1.02rem;
+    line-height: 1.35;
+}
+
+.project-card .project-date {
+    color: var(--muted);
+    font-size: .92rem;
+}
+
+/* ─────────────────────────────────────────────────────────
    HAMBURGER
 ───────────────────────────────────────────────────────── */
 .navbar-hamburger {

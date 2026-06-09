@@ -66,6 +66,103 @@ function parseRegionParts(region) {
   return String(region ?? "").split(",").map(x => norm(x)).filter(Boolean);
 }
 
+function getProjectsFromStorage() {
+  try {
+    return JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function getProjectTitle(project) {
+  const lang = getCurrentLanguage();
+  if (lang === "en") return project.titleEn || project.titleRo || "";
+  if (lang === "ru") return project.titleRu || project.titleRo || "";
+  return project.titleRo || project.titleEn || project.titleRu || "";
+}
+
+function shouldUseProjectsMarquee(grid) {
+  if (!grid) return false;
+  const container = grid.parentElement;
+  if (!container) return false;
+  return grid.scrollWidth > container.getBoundingClientRect().width + 1;
+}
+
+function renderProjectsSection() {
+  const section = document.querySelector(".projects-section");
+  const grid = document.getElementById("projectsGrid");
+  if (!section || !grid) return;
+
+  const items = getProjectsFromStorage().sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
+  if (!items.length) {
+    section.style.display = "none";
+    grid.classList.remove("projects-grid-row--marquee");
+    grid.style.animation = "none";
+    return;
+  }
+
+  section.style.display = "block";
+
+  grid.innerHTML = "";
+  grid.classList.remove("projects-grid-row--marquee");
+  grid.style.animation = "none";
+  grid.dataset.dupCount = "0";
+
+  items.forEach(project => {
+    const card = document.createElement("article");
+    card.className = "project-card-wrap";
+    const date = project.date ? new Date(project.date).toLocaleDateString(getCurrentLanguage() === "en" ? "en-GB" : getCurrentLanguage() === "ru" ? "ru-RU" : "ro-RO") : "";
+    card.innerHTML = `
+      <div class="project-card">
+        <img src="${esc(project.imageUrl || "images/img1.png")}" alt="${esc(getProjectTitle(project))}">
+        <div class="card-body p-3">
+          <h5 class="mb-1">${esc(getProjectTitle(project))}</h5>
+          <div class="project-date">${esc(date)}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  setTimeout(() => {
+    const needsMarquee = shouldUseProjectsMarquee(grid);
+    if (!needsMarquee) {
+      grid.classList.remove("projects-grid-row--marquee");
+      grid.style.animation = "none";
+      grid.dataset.dupCount = "0";
+      return;
+    }
+
+    const duplicated = [...items, ...items];
+    grid.innerHTML = "";
+    grid.classList.add("projects-grid-row--marquee");
+    grid.style.animation = "projects-marquee 24s linear infinite";
+    grid.dataset.dupCount = String(items.length);
+
+    duplicated.forEach(project => {
+      const card = document.createElement("article");
+      card.className = "project-card-wrap";
+      const date = project.date ? new Date(project.date).toLocaleDateString(getCurrentLanguage() === "en" ? "en-GB" : getCurrentLanguage() === "ru" ? "ru-RU" : "ro-RO") : "";
+      card.innerHTML = `
+        <div class="project-card">
+          <img src="${esc(project.imageUrl || "images/img1.png")}" alt="${esc(getProjectTitle(project))}">
+          <div class="card-body p-3">
+            <h5 class="mb-1">${esc(getProjectTitle(project))}</h5>
+            <div class="project-date">${esc(date)}</div>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+    });
+  });
+}
+
+
+function autoScrollProjects() {
+  const grid = document.getElementById("projectsGrid");
+  if (!grid) return;
+
+  const needsMarquee = grid.scrollWidth > grid.clientWidth + 1;
+  grid.style.animationPlayState = needsMarquee ? "running" : "paused";
+}
 
 function debounce(fn, wait) {
   let timer;
@@ -78,6 +175,8 @@ function getQueryParam(key) {
 
 
 // ── Firebase
+const PROJECTS_STORAGE_KEY = "reverie_projects";
+
 const FB_CONFIG = {
   apiKey: "AIzaSyCqXpk1NuWfiq6QjHViK80HLl9zwFVGNGo",
   authDomain: "reverie-c861c.firebaseapp.com",
@@ -1134,6 +1233,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   initCleanURLs();
 
   initAuthState();
+
+  renderProjectsSection();
+  autoScrollProjects();
+  window.addEventListener("resize", () => { renderProjectsSection(); autoScrollProjects(); });
+  onLanguageChange(() => { renderProjectsSection(); autoScrollProjects(); });
+  window.addEventListener("reverie-projects-updated", () => { renderProjectsSection(); autoScrollProjects(); });
 
   initMortgageCalculator();
 
