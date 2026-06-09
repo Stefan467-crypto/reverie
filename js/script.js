@@ -6,6 +6,7 @@ import {
   roomsLabel
 } from "./i18n.js";
 import { initLangSwitcher } from "./langSwitcher.js";
+import { initCategoryStats } from "./categoryStats.js";
 
 
 // ── Helpers
@@ -1246,4 +1247,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   onLanguageChange(() => loadAgentsToContactSection());
 
   initPropertyGrid();
+  initCategoryStats();
 });

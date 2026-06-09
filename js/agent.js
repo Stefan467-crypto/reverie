@@ -495,6 +495,66 @@ function buildCard(p) {
 
 
 // ── Property grid & filters
+async function renderAgentHero() {
+  const heroName = document.getElementById("agentHeroName");
+  const heroIntro = document.getElementById("agentHeroIntro");
+  const heroRole = document.getElementById("agentHeroRole");
+  const heroPhone = document.getElementById("agentHeroPhone");
+  const heroEmail = document.getElementById("agentHeroEmail");
+  const heroLocation = document.getElementById("agentHeroLocation");
+  const heroPhoto = document.getElementById("agentHeroPhoto");
+  const statsListings = document.getElementById("agentStatsListings");
+  const statsExperience = document.getElementById("agentStatsExperience");
+  const statsRegion = document.getElementById("agentStatsRegion");
+
+  if (!heroName && !heroRole && !heroPhone && !heroEmail && !heroPhoto) return;
+
+  try {
+    const hashSlug = getHashSlug();
+    const queryAgent = getQueryParam("agent");
+
+    const agents = await fetchAgents();
+    const agent = agents.find(a =>
+      (queryAgent && a.uid === queryAgent)
+      || (hashSlug && (a.slug === hashSlug || toSlug(a.name || "") === hashSlug))
+    ) || agents[0] || null;
+
+    const properties = agent ? await fetchProperties(agent.uid) : [];
+
+    if (!agent) {
+      if (heroName) heroName.textContent = t("agentPage.fallback_name");
+      if (heroRole) heroRole.textContent = t("agentPage.fallback_role");
+      if (heroIntro) heroIntro.textContent = t("agentPage.fallback_intro");
+      if (heroPhone) heroPhone.textContent = "";
+      if (heroEmail) heroEmail.textContent = "";
+      if (heroLocation) heroLocation.textContent = t("agentPage.fallback_location");
+      if (statsListings) statsListings.textContent = "0";
+      if (statsExperience) statsExperience.textContent = "15+";
+      if (statsRegion) statsRegion.textContent = t("agentPage.fallback_region");
+      if (heroPhoto) heroPhoto.style.backgroundImage = "url('../../images/agent1.png')";
+      return;
+    }
+
+    const photo = agent.photoUrl || agent.photo || agent.avatar || agent.image || "../../images/agent1.png";
+    const phone = String(agent.phone || "").trim();
+    const email = String(agent.email || "").trim();
+    const region = String(agent.region || agent.location || "Cahul").trim() || "Cahul";
+
+    if (heroName) heroName.textContent = agent.name || t("agentPage.fallback_name");
+    if (heroRole) heroRole.textContent = agent.role || t("contact.agent_role");
+    if (heroIntro) heroIntro.textContent = agent.description || t("agentPage.intro");
+    if (heroPhone) heroPhone.textContent = phone || t("agentPage.phone_placeholder");
+    if (heroEmail) heroEmail.textContent = email || t("agentPage.email_placeholder");
+    if (heroLocation) heroLocation.textContent = region;
+    if (heroPhoto) heroPhoto.style.backgroundImage = `url('${esc(photo)}')`;
+    if (statsListings) statsListings.textContent = String(properties.length);
+    if (statsExperience) statsExperience.textContent = agent.experience || "15+";
+    if (statsRegion) statsRegion.textContent = region;
+  } catch (err) {
+    console.error("Agent hero render error:", err);
+  }
+}
+
 async function initPropertyGrid() {
   const grid = document.getElementById("apartmentsGrid");
   if (!grid) return;
@@ -1032,6 +1092,9 @@ function translatePage() {
 document.addEventListener("DOMContentLoaded", async () => {
 
   await initI18n();
+
+  renderAgentHero();
+  onLanguageChange(() => renderAgentHero());
 
   translatePage();
   onLanguageChange(() => translatePage());

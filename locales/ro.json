@@ -160,7 +160,23 @@
     "kicker": "Proiecte partener",
     "title": "Proiecte",
     "subtitle": "Proiectele adăugate în dashboard apar aici pe homepage, fără pagină separată."
-    
+  },
+  "agentPage": {
+    "eyebrow": "Pagina agentului",
+    "intro": "Un specialist dedicat pentru oferte premium, răspuns rapid și îndrumare personalizată.",
+    "tag_focus": "Oferte premium",
+    "tag_support": "Suport personalizat",
+    "tag_fast": "Răspuns rapid",
+    "stat_listings": "oferte disponibile",
+    "stat_experience": "ani de experiență",
+    "stat_region": "focus pe piața locală",
+    "fallback_name": "Agent Reverie",
+    "fallback_role": "Agent imobiliar",
+    "fallback_intro": "Un specialist dedicat pentru oferte premium, răspuns rapid și îndrumare personalizată.",
+    "fallback_location": "Cahul, Moldova",
+    "fallback_region": "Cahul",
+    "phone_placeholder": "Număr de telefon indisponibil",
+    "email_placeholder": "Email indisponibil"
   },
   "dashboard": {
     "title": "Panou de administrare",
@@ -443,5 +459,33 @@
     "stats_chart_title": "Vizualizări pe ultimele 30 de zile",
     "stats_loading": "Se calculează statisticile...",
     "stats_no_views": "Nu există date de vizualizare"
+  },
+  "categories": {
+    "title": "Categorii de proprietăți",
+    "subtitle": "Alege categoria potrivită și descoperă proprietățile disponibile",
+    "view": "Vezi toate",
+    "apartments": "Apartamente",
+    "houses": "Case",
+    "lands": "Terenuri",
+    "commercial": "Spații comerciale",
+    "apartments_desc": "Apartamente în bloc, la sol și studiouri",
+    "houses_desc": "Case individuale și jumătăți de casă",
+    "lands_desc": "Terenuri pentru construcții și agricole",
+    "commercial_desc": "Magazine, birouri, depozite și restaurante",
+    "properties": "{{count}} proprietăți"
+  },
+  "category_page": {
+    "back": "Înapoi la toate ofertele",
+    "loading": "Se încarcă proprietățile...",
+    "no_results": "Nu există proprietăți în această categorie momentan.",
+    "showing": "Se afișează {{count}} proprietăți"
+  },
+  "rooms_filter": {
+    "all": "Toate",
+    "label": "Camere",
+    "n1": "1 cameră",
+    "n2": "2 camere",
+    "n3": "3 camere",
+    "n4": "4+ camere"
   }
 }

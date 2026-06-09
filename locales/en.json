@@ -75,6 +75,23 @@
     "finance_title": "Financial Consulting",
     "finance_desc": "Financing solutions and advice to secure the best rates."
   },
+  "agentPage": {
+    "eyebrow": "Agent page",
+    "intro": "A dedicated specialist for premium listings, fast responses and tailored property guidance.",
+    "tag_focus": "Premium listings",
+    "tag_support": "Personal support",
+    "tag_fast": "Fast follow-up",
+    "stat_listings": "available listings",
+    "stat_experience": "years of experience",
+    "stat_region": "local market focus",
+    "fallback_name": "Agent Reverie",
+    "fallback_role": "Real Estate Agent",
+    "fallback_intro": "A dedicated specialist for premium listings, fast responses and tailored property guidance.",
+    "fallback_location": "Cahul, Moldova",
+    "fallback_region": "Cahul",
+    "phone_placeholder": "Phone number unavailable",
+    "email_placeholder": "Email not available"
+  },
   "contact": {
     "title": "Contact Us",
     "subtitle": "Choose an agent and receive personalised help immediately.",
@@ -442,5 +459,33 @@
     "stats_chart_title": "Views over the last 30 days",
     "stats_loading": "Calculating statistics...",
     "stats_no_views": "No view data available"
+  },
+  "categories": {
+    "title": "Property Categories",
+    "subtitle": "Choose a category and explore available properties",
+    "view": "View all",
+    "apartments": "Apartments",
+    "houses": "Houses",
+    "lands": "Land Plots",
+    "commercial": "Commercial Spaces",
+    "apartments_desc": "Block apartments, ground-floor units and studios",
+    "houses_desc": "Individual houses and semi-detached homes",
+    "lands_desc": "Building plots and agricultural land",
+    "commercial_desc": "Stores, offices, warehouses and restaurants",
+    "properties": "{{count}} properties"
+  },
+  "category_page": {
+    "back": "Back to all listings",
+    "loading": "Loading properties...",
+    "no_results": "No properties in this category at the moment.",
+    "showing": "Showing {{count}} properties"
+  },
+  "rooms_filter": {
+    "all": "All",
+    "label": "Rooms",
+    "n1": "1 room",
+    "n2": "2 rooms",
+    "n3": "3 rooms",
+    "n4": "4+ rooms"
   }
 }
