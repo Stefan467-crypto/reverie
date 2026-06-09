@@ -2262,7 +2262,7 @@ a:focus:not(:focus-visible) {
 
 .agent-profile-photo {
     width: 100%;
-    min-height: 220px;
+    min-height: 400px;
     border-radius: 18px;
     background-size: cover;
     background-position: center;
