@@ -24,7 +24,7 @@ import { getFirestore, doc, getDoc }
   from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
 
 const app = getApps().length ? getApp() : initializeApp(FB_CONFIG);
-const db  = getFirestore(app);
+const db = getFirestore(app);
 
 
 function qp(key) {
@@ -53,7 +53,7 @@ function safe(v, fb = "—") {
 
 
 function initHamburger() {
-  const btn  = document.getElementById("navbarHamburger");
+  const btn = document.getElementById("navbarHamburger");
   const menu = document.querySelector(".mobile-menu-content");
   if (!btn || !menu) return;
 
@@ -77,23 +77,23 @@ function initHamburger() {
 }
 
 
-const titleEl          = document.getElementById("title");
-const priceEl          = document.getElementById("price");
+const titleEl = document.getElementById("title");
+const priceEl = document.getElementById("price");
 const transactionTypeEl = document.getElementById("transactionType");
-const generalInfoEl    = document.getElementById("generalInfo");
-const featuresEl       = document.getElementById("features");
-const mainImageEl      = document.getElementById("mainImage");
-const thumbsEl         = document.getElementById("thumbs");
-const prevBtn          = document.getElementById("prevBtn");
-const nextBtn          = document.getElementById("nextBtn");
-const statusOverlayEl  = document.getElementById("statusOverlay");
-const statusTextEl     = document.getElementById("statusText");
-const agentNameEl      = document.getElementById("agentName");
-const agentEmailEl     = document.getElementById("agentEmail");
-const agentPhoneEl     = document.getElementById("agentPhone");
-const agentPhotoEl     = document.getElementById("agentPhoto");
-const callBtn          = document.getElementById("callAgentBtn");
-const messageBtn       = document.getElementById("messageBtn");
+const generalInfoEl = document.getElementById("generalInfo");
+const featuresEl = document.getElementById("features");
+const mainImageEl = document.getElementById("mainImage");
+const thumbsEl = document.getElementById("thumbs");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const statusOverlayEl = document.getElementById("statusOverlay");
+const statusTextEl = document.getElementById("statusText");
+const agentNameEl = document.getElementById("agentName");
+const agentEmailEl = document.getElementById("agentEmail");
+const agentPhoneEl = document.getElementById("agentPhone");
+const agentPhotoEl = document.getElementById("agentPhoto");
+const callBtn = document.getElementById("callAgentBtn");
+const messageBtn = document.getElementById("messageBtn");
 
 
 await initI18n();
@@ -102,7 +102,7 @@ initLangSwitcher();
 
 function translateStaticPage() {
   document.querySelectorAll("[data-i18n]").forEach(el => {
-    const key  = el.getAttribute("data-i18n");
+    const key = el.getAttribute("data-i18n");
     const attr = el.getAttribute("data-i18n-attr");
     if (attr) el.setAttribute(attr, t(key));
     else el.textContent = t(key);
@@ -154,14 +154,14 @@ if (!snap.exists()) {
 const p = snap.data() || {};
 
 
-let images  = [];
+let images = [];
 let current = 0;
-let lbl     = "";
+let lbl = "";
 
 function rerenderProperty() {
   const lang = getCurrentLanguage();
 
-  
+
   const rawStatus = p.status ?? p.state ?? p.availability ?? "active";
   const st = normalizeStatus(rawStatus);
   lbl = translateStatus(st);
@@ -175,7 +175,7 @@ function rerenderProperty() {
     }
   }
 
-  
+
   if (titleEl) {
     const txCanonical = normalizeTransaction(p.transactionType || "sale");
     const generatedTitle = (p.propertyType && p.region)
@@ -184,19 +184,19 @@ function rerenderProperty() {
     titleEl.textContent = generatedTitle || safe(p.title || p.propertyType, t("property.title_fallback"));
   }
 
-  
+
   if (priceEl) {
     const pr = (typeof p.price === "number" || String(p.price ?? "").trim() !== "") ? p.price : null;
     priceEl.textContent = pr !== null ? `€${pr}` : "€-";
   }
 
-  
+
   if (transactionTypeEl) {
     const canonical = normalizeTransaction(p.transactionType || "sale");
     transactionTypeEl.textContent = translateTransaction(canonical);
   }
 
-  
+
   if (generalInfoEl) generalInfoEl.innerHTML = "";
 
   function addRow(labelKey, value) {
@@ -210,7 +210,7 @@ function rerenderProperty() {
   }
 
   addRow("property.location", formatLocation(p.region || ""));
-  addRow("property.code",     safe(p.code, ""));
+  addRow("property.code", safe(p.code, ""));
   addRow("property.prop_type", translatePropertyTypeRaw(p.propertyType || ""));
 
   if (p.area != null && String(p.area).trim() !== "")
@@ -223,7 +223,7 @@ function rerenderProperty() {
     addRow("property.rooms", p.rooms);
 
   if (p.floor && p.totalFloors) addRow("property.floor", `${p.floor} / ${p.totalFloors}`);
-  else if (p.floor)             addRow("property.floor", p.floor);
+  else if (p.floor) addRow("property.floor", p.floor);
 
   if (p.ceilingHeight != null && String(p.ceilingHeight).trim() !== "")
     addRow("property.ceiling", `${p.ceilingHeight} m`);
@@ -240,7 +240,7 @@ function rerenderProperty() {
   if (p.garages != null && Number(p.garages) > 0)
     addRow("property.garages", p.garages);
 
-  
+
   const genH3 = generalInfoEl?.previousElementSibling;
   if (genH3?.tagName === "H3") {
     genH3.textContent = t("property.general_info");
@@ -249,7 +249,7 @@ function rerenderProperty() {
     if (generalInfoEl) generalInfoEl.style.display = hide ? "none" : "";
   }
 
-  
+
   if (featuresEl) featuresEl.innerHTML = "";
   const hasFeatures = Array.isArray(p.features) && p.features.length > 0;
   const featH3 = featuresEl?.previousElementSibling;
@@ -266,16 +266,16 @@ function rerenderProperty() {
     if (featuresEl) featuresEl.style.display = hasFeatures ? "" : "none";
   }
 
-  
+
   const callBtnIcon = callBtn?.querySelector("i");
-  const msgBtnIcon  = messageBtn?.querySelector("i");
-  if (callBtn) callBtn.innerHTML  = `<i class="fa fa-phone-alt me-2"></i>${t("property.call_agent")}`;
+  const msgBtnIcon = messageBtn?.querySelector("i");
+  if (callBtn) callBtn.innerHTML = `<i class="fa fa-phone-alt me-2"></i>${t("property.call_agent")}`;
   if (messageBtn) messageBtn.innerHTML = `<i class="fa fa-envelope me-2"></i>${t("property.send_message")}`;
 
-  
+
   updateLightboxStatus();
 
-  
+
   if (thumbsEl) thumbsEl.innerHTML = "";
   if (images.length > 0) {
     images.forEach((src, idx) => {
@@ -297,7 +297,7 @@ function rerenderProperty() {
     if (mainImageEl) mainImageEl.src = "../images/img1.png";
   }
 
-  
+
   refreshThumbStatusLabels();
 }
 
@@ -311,11 +311,62 @@ function setActiveThumb(index) {
   });
 }
 
-function showImage(index) {
+
+// ── Watermark compositing
+const WATERMARK_SRC = "../../images/wmark.png";
+let _wmCache = null;
+
+async function loadWatermarkImg() {
+  if (_wmCache) return _wmCache;
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => { _wmCache = img; resolve(img); };
+    img.onerror = () => resolve(null);
+    img.src = WATERMARK_SRC;
+  });
+}
+
+async function compositeWatermark(photoUrl) {
+  const [photo, wm] = await Promise.all([
+    new Promise((res, rej) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => res(img);
+      img.onerror = () => rej(new Error("photo load failed"));
+      img.src = photoUrl;
+    }),
+    loadWatermarkImg(),
+  ]);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = photo.naturalWidth || photo.width;
+  canvas.height = photo.naturalHeight || photo.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(photo, 0, 0);
+
+  if (wm) {
+    const wmW = canvas.width * 0.35;
+    const wmH = (wm.naturalHeight / wm.naturalWidth) * wmW;
+    const x = (canvas.width - wmW) / 2;
+    const y = (canvas.height - wmH) / 2;
+    ctx.globalAlpha = 0.42;
+    ctx.drawImage(wm, x, y, wmW, wmH);
+    ctx.globalAlpha = 1;
+  }
+
+  return canvas.toDataURL("image/jpeg", 0.92);
+}
+
+async function showImage(index) {
   if (!mainImageEl || !images.length) return;
   current = (index + images.length) % images.length;
-  mainImageEl.src = images[current];
   setActiveThumb(current);
+  try {
+    mainImageEl.src = await compositeWatermark(images[current]);
+  } catch {
+    mainImageEl.src = images[current];
+  }
 }
 
 function buildThumbStatusOverlay() {
@@ -369,10 +420,6 @@ lightbox.innerHTML = `
     </button>
     <div class="lightbox-image-wrapper">
       <img id="lbImg" class="lightbox-image" src="" alt="">
-      <div class="image-watermark" aria-hidden="true">
-        <img src="../../images/wmark.png" alt="Reverie watermark"
-          style="width:180px;max-width:180px;height:auto;object-fit:contain;opacity:0.42;">
-      </div>
       <div class="lightbox-status" id="lbStatus">
         <span class="lightbox-status-text" id="lbStatusText">—</span>
       </div>
@@ -386,11 +433,11 @@ lightbox.innerHTML = `
   </div>`;
 document.body.appendChild(lightbox);
 
-const lbImg        = document.getElementById("lbImg");
-const lbClose      = document.getElementById("lbClose");
-const lbPrev       = document.getElementById("lbPrev");
-const lbNext       = document.getElementById("lbNext");
-const lbStatus     = document.getElementById("lbStatus");
+const lbImg = document.getElementById("lbImg");
+const lbClose = document.getElementById("lbClose");
+const lbPrev = document.getElementById("lbPrev");
+const lbNext = document.getElementById("lbNext");
+const lbStatus = document.getElementById("lbStatus");
 const lbStatusText = document.getElementById("lbStatusText");
 
 function updateLightboxStatus() {
@@ -402,12 +449,16 @@ function updateLightboxStatus() {
   }
 }
 
-function openLightbox(index) {
+async function openLightbox(index) {
   current = (index + images.length) % images.length;
-  lbImg.src = images[current];
   lightbox.classList.add("active");
   document.body.classList.add("lightbox-open");
   updateLightboxStatus();
+  try {
+    lbImg.src = await compositeWatermark(images[current]);
+  } catch {
+    lbImg.src = images[current];
+  }
 }
 
 function closeLightbox() {
@@ -416,12 +467,22 @@ function closeLightbox() {
   lbStatus?.classList.remove("show");
 }
 
-function lbShowImage(index) {
+async function lbShowImage(index) {
   current = (index + images.length) % images.length;
-  lbImg.src = images[current];
   setActiveThumb(current);
-  if (mainImageEl) mainImageEl.src = images[current];
+  if (mainImageEl) {
+    try {
+      mainImageEl.src = await compositeWatermark(images[current]);
+    } catch {
+      mainImageEl.src = images[current];
+    }
+  }
   updateLightboxStatus();
+  try {
+    lbImg.src = await compositeWatermark(images[current]);
+  } catch {
+    lbImg.src = images[current];
+  }
 }
 
 if (mainImageEl) {
@@ -430,13 +491,13 @@ if (mainImageEl) {
 }
 
 lbClose?.addEventListener("click", closeLightbox);
-lbPrev?.addEventListener("click",  () => lbShowImage(current - 1));
-lbNext?.addEventListener("click",  () => lbShowImage(current + 1));
+lbPrev?.addEventListener("click", () => lbShowImage(current - 1));
+lbNext?.addEventListener("click", () => lbShowImage(current + 1));
 lightbox.addEventListener("click", e => { if (e.target === lightbox) closeLightbox(); });
 document.addEventListener("keydown", e => {
   if (!lightbox.classList.contains("active")) return;
-  if (e.key === "Escape")     closeLightbox();
-  if (e.key === "ArrowLeft")  lbShowImage(current - 1);
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") lbShowImage(current - 1);
   if (e.key === "ArrowRight") lbShowImage(current + 1);
 });
 
@@ -449,7 +510,7 @@ async function loadAgent(agentId) {
 
 const agent = await loadAgent(p.agentId);
 if (agent) {
-  if (agentNameEl)  agentNameEl.textContent = safe(agent.name, t("contact.agent_role"));
+  if (agentNameEl) agentNameEl.textContent = safe(agent.name, t("contact.agent_role"));
   if (agentEmailEl) {
     const em = safe(agent.email, "");
     agentEmailEl.textContent = em || "—";
@@ -464,7 +525,7 @@ if (agent) {
     const photo = agent.photoUrl || agent.photo || agent.avatar || "";
     if (photo) agentPhotoEl.src = photo;
   }
-  if (callBtn    && agentPhoneEl?.href) callBtn.href    = agentPhoneEl.href;
+  if (callBtn && agentPhoneEl?.href) callBtn.href = agentPhoneEl.href;
   if (messageBtn && agentEmailEl?.href) messageBtn.href = agentEmailEl.href;
 }
 

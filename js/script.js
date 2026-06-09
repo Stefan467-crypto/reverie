@@ -396,6 +396,53 @@ async function loadAgentsToContactSection() {
 }
 
 
+// ── Watermark compositing (ars pe imagine, nu doar overlay CSS)
+const WATERMARK_SRC = "images/wmark.png";
+let _wmCache = null;
+
+async function loadWatermarkImg() {
+  if (_wmCache) return _wmCache;
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload  = () => { _wmCache = img; resolve(img); };
+    img.onerror = () => resolve(null);
+    img.src = WATERMARK_SRC;
+  });
+}
+
+async function compositeWatermark(photoUrl) {
+  const [photo, wm] = await Promise.all([
+    new Promise((res, rej) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload  = () => res(img);
+      img.onerror = () => rej(new Error("photo load failed"));
+      img.src = photoUrl;
+    }),
+    loadWatermarkImg(),
+  ]);
+
+  const canvas = document.createElement("canvas");
+  canvas.width  = photo.naturalWidth  || photo.width;
+  canvas.height = photo.naturalHeight || photo.height;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(photo, 0, 0);
+
+  if (wm) {
+    const wmW = canvas.width * 0.35;
+    const wmH = (wm.naturalHeight / wm.naturalWidth) * wmW;
+    const x   = (canvas.width  - wmW) / 2;
+    const y   = (canvas.height - wmH) / 2;
+    ctx.globalAlpha = 0.42;
+    ctx.drawImage(wm, x, y, wmW, wmH);
+    ctx.globalAlpha = 1;
+  }
+
+  return canvas.toDataURL("image/jpeg", 0.92);
+}
+
+
 // ── Property card builder
 function buildCard(p) {
   const rawTitle = String(p.title || "");
@@ -441,9 +488,6 @@ function buildCard(p) {
     >
       <div class="prop-img-wrap image-overlay-wrapper">
         <img src="${esc(img)}" class="card-img-top" alt="${esc(displayTitle)}">
-        <div class="image-watermark" aria-hidden="true">
-          <img src="images/wmark.png" alt="Reverie watermark" style="width:72px;max-width:72px;height:auto;object-fit:contain;opacity:0.36;">
-        </div>
         <div class="prop-status-overlay" aria-hidden="true">
           <span>${esc(overlayTxt)}</span>
         </div>
@@ -466,6 +510,17 @@ function buildCard(p) {
         </div>
       </div>
     </article>`;
+
+  // Aplică watermark ars pe imaginea cardului (asincron, după inserare în DOM)
+  const rawImgSrc = img;
+  requestAnimationFrame(() => {
+    const cardImg = col.querySelector(".card-img-top");
+    if (cardImg && rawImgSrc && !rawImgSrc.includes("wmark.png")) {
+      compositeWatermark(rawImgSrc).then(dataUrl => {
+        cardImg.src = dataUrl;
+      }).catch(() => { /* fallback rămâne src original */ });
+    }
+  });
 
   return col;
 }
