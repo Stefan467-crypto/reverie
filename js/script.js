@@ -1015,22 +1015,29 @@ async function initPropertyGrid() {
     const typesMap = new Map(), roomsMap = new Map(), raionsMap = new Map();
 
     const COMMERCIAL_SUBTYPES = new Set(["Restaurant", "Bar", "Oficiu", "Magazin", "Depozit"]);
-    const LAND_SUBTYPES = new Set(["Teren pentru construcții", "Teren Agricol", "Terenuri"]);
+    const LAND_SUBTYPES = new Set(["Teren pentru construcții", "Teren Agricol", "Terenuri", "Teren"]);
+    // Generic values that collapse into the single "land" entry — named subtypes stay individual
+    const LAND_GENERIC = new Set(["Teren", "Terenuri"]);
     let hasCommercialSub = false;
     let hasLandSub = false;
 
     cards.forEach(card => {
       const canonical = card.getAttribute("data-type") || "";
       const rawPropType = card.getAttribute("data-proptype-raw") || "";
-      if (canonical) {
-        const displayText = rawPropType
-          ? translatePropertyTypeRaw(rawPropType)
-          : translateType(canonical);
-        typesMap.set(rawPropType || canonical, displayText);
-      }
-
       if (COMMERCIAL_SUBTYPES.has(rawPropType)) hasCommercialSub = true;
       if (LAND_SUBTYPES.has(rawPropType)) hasLandSub = true;
+
+      if (canonical) {
+        // "Teren" / "Terenuri" collapse into the generic "land" entry added below.
+        // Named subtypes like "Teren pentru construcții" and "Teren Agricol" stay as individual entries.
+        const isGenericLand = canonical === "land" && LAND_GENERIC.has(rawPropType);
+        if (!isGenericLand) {
+          const displayText = rawPropType
+            ? translatePropertyTypeRaw(rawPropType)
+            : translateType(canonical);
+          typesMap.set(rawPropType || canonical, displayText);
+        }
+      }
 
       const roomsValue = card.getAttribute("data-rooms") || "";
       const roomsRaw = (card.getAttribute("data-roomsraw") || "").trim();
