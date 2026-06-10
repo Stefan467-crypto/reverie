@@ -45,7 +45,7 @@ const secondaryAuth = getAuth(secondaryApp);
 
 const CLOUD_NAME = "dp1y1xv5l";
 const UPLOAD_PRESET = "reverie";
-
+const PROJECTS_STORAGE_KEY = "reverie_projects";
 
 
 const $ = id => document.getElementById(id);
@@ -450,12 +450,22 @@ navButtons.forEach(btn => btn.addEventListener("click", () => showView(btn.datas
 goAddBtn?.addEventListener("click", () => showView("add"));
 goMyBtn?.addEventListener("click", () => showView("my"));
 
-// ── Projects
-
 function setProjectMsg(text, ok = true) {
   if (!projectMsg) return;
   projectMsg.textContent = text || "";
   projectMsg.style.color = ok ? "#198754" : "#dc3545";
+}
+
+function getProjects() {
+  try {
+    return JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function saveProjects(items) {
+  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(items));
 }
 
 function getProjectTitle(project, lang = getCurrentLanguage()) {
@@ -464,59 +474,25 @@ function getProjectTitle(project, lang = getCurrentLanguage()) {
   return project.titleRo || project.titleEn || project.titleRu || "";
 }
 
-function showPhotoPreview(container, file, objectUrlHolder) {
-  if (!container) return;
-  if (objectUrlHolder.url) { URL.revokeObjectURL(objectUrlHolder.url); objectUrlHolder.url = ""; }
-  container.innerHTML = "";
-  if (!file) return;
-  objectUrlHolder.url = URL.createObjectURL(file);
-  const img = document.createElement("img");
-  img.src = objectUrlHolder.url;
-  img.alt = "preview";
-  img.style.cssText = "max-width:180px;border-radius:12px;";
-  container.appendChild(img);
-}
-
-// Fetch all projects from Firestore
-async function fetchProjects() {
-  const snap = await getDocs(collection(db, "projects"));
-  const items = [];
-  snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-  return items.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-}
-
-// Render the projects list in the dashboard
-async function renderProjectsList() {
+function renderProjectsList() {
   if (!projectsList) return;
-  projectsList.innerHTML = `<div class="col-12"><div class="small-muted">Se încarcă...</div></div>`;
-
-  let items;
-  try {
-    items = await fetchProjects();
-  } catch (err) {
-    console.error("fetchProjects error:", err);
-    projectsList.innerHTML = `<div class="col-12"><div class="small-muted text-danger">Eroare la încărcarea proiectelor.</div></div>`;
-    return;
-  }
-
+  const items = getProjects().sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
   if (!items.length) {
     projectsList.innerHTML = `<div class="col-12"><div class="small-muted">${esc(t("dash.projects_empty") || "Nu există proiecte încă.")}</div></div>`;
     return;
   }
 
   projectsList.innerHTML = "";
-  const locale = getCurrentLanguage() === "en" ? "en-GB" : getCurrentLanguage() === "ru" ? "ru-RU" : "ro-RO";
-
   items.forEach(project => {
     const card = document.createElement("div");
     card.className = "col-12 col-md-6 col-xl-4";
-    const dateStr = project.date ? new Date(project.date).toLocaleDateString(locale) : "";
+    const date = project.date ? new Date(project.date).toLocaleDateString(getCurrentLanguage() === "en" ? "en-GB" : getCurrentLanguage() === "ru" ? "ru-RU" : "ro-RO") : "";
     card.innerHTML = `
       <article class="dashboard-project-card">
         <img src="${esc(project.imageUrl || "../images/img1.png")}" alt="${esc(getProjectTitle(project))}">
         <div class="dashboard-project-body">
           <h6 class="mb-1">${esc(getProjectTitle(project))}</h6>
-          <div class="project-date">${esc(dateStr)}</div>
+          <div class="project-date">${esc(date)}</div>
           <div class="dashboard-project-actions">
             <button type="button" class="btn btn-outline-primary btn-sm" data-edit-project="${esc(project.id)}">${esc(t("dash.edit_btn") || "Editează")}</button>
             <button type="button" class="btn btn-outline-danger btn-sm" data-remove-project="${esc(project.id)}">${esc(t("dash.delete_btn") || "Șterge")}</button>
@@ -526,137 +502,168 @@ async function renderProjectsList() {
     projectsList.appendChild(card);
   });
 
-  // Edit buttons — open modal and populate fields
   projectsList.querySelectorAll("[data-edit-project]").forEach(btn => {
     btn.addEventListener("click", () => {
-      const project = items.find(p => p.id === btn.getAttribute("data-edit-project"));
+      const id = btn.getAttribute("data-edit-project");
+      const project = getProjects().find(item => item.id === id);
       if (!project) return;
-      editingProjectId = project.id;
+      editingProjectId = id;
       if (!projectEditModalInstance) projectEditModalInstance = new bootstrap.Modal($("projectEditModal"));
-      projectEditIdInput.value = project.id;
+      projectEditIdInput.value = id;
       projectEditTitleRo.value = project.titleRo || "";
       projectEditTitleEn.value = project.titleEn || "";
       projectEditTitleRu.value = project.titleRu || "";
       projectEditDate.value = project.date || "";
       projectEditPhotoInput.value = "";
       projectEditPhotoFile = null;
-      if (projectEditPhotoPreviewUrl) { URL.revokeObjectURL(projectEditPhotoPreviewUrl); projectEditPhotoPreviewUrl = ""; }
-      projectEditPhotoPreview.innerHTML = project.imageUrl
-        ? `<img src="${esc(project.imageUrl)}" alt="" style="max-width:180px;border-radius:12px;">`
-        : "";
+      if (projectEditPhotoPreviewUrl) URL.revokeObjectURL(projectEditPhotoPreviewUrl);
+      projectEditPhotoPreviewUrl = "";
+      projectEditPhotoPreview.innerHTML = project.imageUrl ? `<img src="${esc(project.imageUrl)}" alt="${esc(getProjectTitle(project))}" style="max-width:180px;border-radius:12px;">` : "";
       setProjectMsg(t("dash.projects_edit_hint") || "Modifică câmpurile și salvează.", true);
       projectEditModalInstance.show();
     });
   });
 
-  // Delete buttons
   projectsList.querySelectorAll("[data-remove-project]").forEach(btn => {
-    btn.addEventListener("click", async () => {
+    btn.addEventListener("click", () => {
       const id = btn.getAttribute("data-remove-project");
       if (!id || !confirm("Ștergi acest proiect?")) return;
-      try {
-        await deleteDoc(doc(db, "projects", id));
-        window.dispatchEvent(new Event("reverie-projects-updated"));
-        renderProjectsList();
-      } catch (err) {
-        console.error("deleteDoc error:", err);
-        alert("Eroare la ștergerea proiectului: " + (err?.message || err));
-      }
+      const next = getProjects().filter(item => item.id !== id);
+      saveProjects(next);
+      renderProjectsList();
+      window.dispatchEvent(new Event("reverie-projects-updated"));
     });
   });
 }
 
-function loadProjectsList() { renderProjectsList(); }
+function loadProjectsList() {
+  renderProjectsList();
+}
 
 function resetProjectForm() {
-  projectForm?.reset();
+  if (projectForm) projectForm.reset();
   if (projectIdInput) projectIdInput.value = "";
   if (projectPhotoInput) projectPhotoInput.value = "";
   editingProjectId = null;
   projectPhotoFile = null;
   if (projectPhotoPreview) projectPhotoPreview.innerHTML = "";
-  if (projectPhotoPreviewUrl) { URL.revokeObjectURL(projectPhotoPreviewUrl); projectPhotoPreviewUrl = ""; }
+  if (projectPhotoPreviewUrl) URL.revokeObjectURL(projectPhotoPreviewUrl);
+  projectPhotoPreviewUrl = "";
   if (projectSubmitBtn) projectSubmitBtn.textContent = t("dash.projects_add_btn") || "Adaugă proiect";
   if (projectPhotoInput) projectPhotoInput.required = true;
   setProjectMsg("");
 }
 
-// Photo preview listeners
 projectPhotoInput?.addEventListener("change", () => {
-  projectPhotoFile = projectPhotoInput.files?.[0] || null;
-  const holder = { url: projectPhotoPreviewUrl };
-  showPhotoPreview(projectPhotoPreview, projectPhotoFile, holder);
-  projectPhotoPreviewUrl = holder.url;
-});
-
-projectEditPhotoInput?.addEventListener("change", () => {
-  projectEditPhotoFile = projectEditPhotoInput.files?.[0] || null;
-  const holder = { url: projectEditPhotoPreviewUrl };
-  showPhotoPreview(projectEditPhotoPreview, projectEditPhotoFile, holder);
-  projectEditPhotoPreviewUrl = holder.url;
+  const file = projectPhotoInput.files?.[0] || null;
+  if (projectPhotoPreviewUrl) URL.revokeObjectURL(projectPhotoPreviewUrl);
+  projectPhotoFile = file;
+  projectPhotoPreview.innerHTML = "";
+  if (!file) return;
+  projectPhotoPreviewUrl = URL.createObjectURL(file);
+  const img = document.createElement("img");
+  img.src = projectPhotoPreviewUrl;
+  img.alt = "Project preview";
+  img.style.maxWidth = "180px";
+  img.style.borderRadius = "12px";
+  projectPhotoPreview.appendChild(img);
 });
 
 projectResetBtn?.addEventListener("click", resetProjectForm);
 
-// Edit form submit (modal)
+projectEditPhotoInput?.addEventListener("change", () => {
+  const file = projectEditPhotoInput.files?.[0] || null;
+  if (projectEditPhotoPreviewUrl) URL.revokeObjectURL(projectEditPhotoPreviewUrl);
+  projectEditPhotoFile = file;
+  projectEditPhotoPreview.innerHTML = "";
+  if (!file) return;
+  projectEditPhotoPreviewUrl = URL.createObjectURL(file);
+  const img = document.createElement("img");
+  img.src = projectEditPhotoPreviewUrl;
+  img.alt = "Project preview";
+  img.style.maxWidth = "180px";
+  img.style.borderRadius = "12px";
+  projectEditPhotoPreview.appendChild(img);
+});
+
 projectEditForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const titleRo = projectEditTitleRo?.value.trim() || "";
-  const titleEn = projectEditTitleEn?.value.trim() || "";
-  const titleRu = projectEditTitleRu?.value.trim() || "";
-  const date    = projectEditDate?.value.trim() || "";
+  setProjectMsg("Se salvează proiectul...", true);
 
-  if (!titleRo || !titleEn || !titleRu) return setProjectMsg("Completează toate titlurile.", false);
-  if (!date) return setProjectMsg("Selectează data proiectului.", false);
-  if (!editingProjectId) return setProjectMsg("ID proiect lipsă.", false);
-
-  setProjectMsg("Se salvează...", true);
   try {
-    const docRef = doc(db, "projects", editingProjectId);
-    const snap = await getDoc(docRef);
-    let imageUrl = snap.exists() ? (snap.data().imageUrl || "") : "";
+    const titleRo = (projectEditTitleRo?.value || "").trim();
+    const titleEn = (projectEditTitleEn?.value || "").trim();
+    const titleRu = (projectEditTitleRu?.value || "").trim();
+    const date = (projectEditDate?.value || "").trim();
+    if (!titleRo || !titleEn || !titleRu) return setProjectMsg("Completează toate titlurile.", false);
+    if (!date) return setProjectMsg("Selectează data proiectului.", false);
+
+    const existing = getProjects().find(item => item.id === editingProjectId);
+    let imageUrl = existing?.imageUrl || "";
     if (projectEditPhotoFile) imageUrl = await uploadSingleImageToCloudinary(projectEditPhotoFile);
 
-    await setDoc(docRef, { titleRo, titleEn, titleRu, date, imageUrl, updatedAt: serverTimestamp() }, { merge: true });
-
-    setProjectMsg("Proiectul a fost actualizat.", true);
-    editingProjectId = null;
-    projectEditModalInstance?.hide();
-    window.dispatchEvent(new Event("reverie-projects-updated"));
-    renderProjectsList();
+    const next = getProjects();
+    const idx = next.findIndex(item => item.id === editingProjectId);
+    if (idx >= 0) {
+      next[idx] = { ...next[idx], titleRo, titleEn, titleRu, date, imageUrl, updatedAt: Date.now() };
+      saveProjects(next);
+      setProjectMsg("Proiectul a fost actualizat.", true);
+      editingProjectId = null;
+      renderProjectsList();
+      projectEditModalInstance?.hide();
+      window.dispatchEvent(new Event("reverie-projects-updated"));
+    }
   } catch (err) {
-    console.error("projectEditForm error:", err);
+    console.error(err);
     setProjectMsg(err?.message || "Eroare la salvarea proiectului.", false);
   }
 });
 
-// Add form submit
 projectForm?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const titleRo = projectTitleRo?.value.trim() || "";
-  const titleEn = projectTitleEn?.value.trim() || "";
-  const titleRu = projectTitleRu?.value.trim() || "";
-  const date    = projectDate?.value.trim() || "";
+  setProjectMsg("Se salvează proiectul...", true);
 
-  if (!titleRo || !titleEn || !titleRu) return setProjectMsg("Completează toate titlurile.", false);
-  if (!date) return setProjectMsg("Selectează data proiectului.", false);
-  if (!projectPhotoFile) return setProjectMsg("Alege o fotografie pentru proiect.", false);
-
-  setProjectMsg("Se salvează...", true);
   try {
-    const imageUrl = await uploadSingleImageToCloudinary(projectPhotoFile);
-    await addDoc(collection(db, "projects"), {
-      titleRo, titleEn, titleRu, date, imageUrl, createdAt: serverTimestamp()
-    });
-    setProjectMsg("Proiectul a fost adăugat cu succes.", true);
+    const titleRo = (projectTitleRo?.value || "").trim();
+    const titleEn = (projectTitleEn?.value || "").trim();
+    const titleRu = (projectTitleRu?.value || "").trim();
+    const date = (projectDate?.value || "").trim();
+
+    if (!titleRo || !titleEn || !titleRu) return setProjectMsg("Completează toate titlurile.", false);
+    if (!date) return setProjectMsg("Selectează data proiectului.", false);
+
+    let imageUrl = "";
+    if (editingProjectId) {
+      const existing = getProjects().find(item => item.id === editingProjectId);
+      imageUrl = existing?.imageUrl || "";
+      if (projectPhotoFile) imageUrl = await uploadSingleImageToCloudinary(projectPhotoFile);
+    } else {
+      if (!projectPhotoFile) return setProjectMsg("Alege o fotografie pentru proiect.", false);
+      imageUrl = await uploadSingleImageToCloudinary(projectPhotoFile);
+    }
+
+    const next = getProjects();
+    if (editingProjectId) {
+      const idx = next.findIndex(item => item.id === editingProjectId);
+      if (idx >= 0) {
+        next[idx] = { ...next[idx], titleRo, titleEn, titleRu, date, imageUrl, updatedAt: Date.now() };
+      }
+    } else {
+      next.unshift({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), titleRo, titleEn, titleRu, date, imageUrl, createdAt: Date.now() });
+    }
+    saveProjects(next);
+    setProjectMsg(editingProjectId ? "Proiectul a fost actualizat." : "Proiectul a fost adăugat cu succes.", true);
+    editingProjectId = null;
     resetProjectForm();
-    window.dispatchEvent(new Event("reverie-projects-updated"));
     renderProjectsList();
+    window.dispatchEvent(new Event("reverie-projects-updated"));
   } catch (err) {
-    console.error("projectForm error:", err);
+    console.error(err);
     setProjectMsg(err?.message || "Eroare la salvarea proiectului.", false);
   }
 });
+
+window.addEventListener("reverie-projects-updated", renderProjectsList);
 
 
 imageInput?.addEventListener("change", () => {
