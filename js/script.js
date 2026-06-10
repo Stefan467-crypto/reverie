@@ -89,12 +89,24 @@ function shouldUseProjectsMarquee(grid) {
   return grid.scrollWidth > container.getBoundingClientRect().width + 1;
 }
 
-function renderProjectsSection() {
+async function renderProjectsSection() {
   const section = document.querySelector(".projects-section");
   const grid = document.getElementById("projectsGrid");
   if (!section || !grid) return;
 
-  const items = getProjectsFromStorage().sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
+  let items = [];
+  try {
+    const { fsMod, db } = await getFirebase();
+    const { collection, getDocs } = fsMod;
+    const snap = await getDocs(collection(db, "projects"));
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    // Update local cache so offline/fallback still works
+    try { localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(items)); } catch { }
+  } catch {
+    items = getProjectsFromStorage();
+  }
+
+  items = items.sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
   if (!items.length) {
     section.style.display = "none";
     grid.classList.remove("projects-grid-row--marquee");
@@ -1327,7 +1339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   initAuthState();
 
-  renderProjectsSection();
+  await renderProjectsSection();
   autoScrollProjects();
   window.addEventListener("resize", () => { renderProjectsSection(); autoScrollProjects(); });
   onLanguageChange(() => { renderProjectsSection(); autoScrollProjects(); });
