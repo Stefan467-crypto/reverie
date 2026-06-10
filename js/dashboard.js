@@ -85,7 +85,18 @@ function setSelectValue(select, value) {
   }
 
   const opt = Array.from(select.options).find(o => o.value.trim() === norm);
-  select.value = opt ? opt.value : "";
+  const targetValue = opt ? opt.value : "";
+  select.value = targetValue;
+
+  Array.from(select.options).forEach(o => {
+    if (o.value === targetValue) {
+      o.selected = true;
+      o.setAttribute('selected', '');
+    } else {
+      o.selected = false;
+      o.removeAttribute('selected');
+    }
+  });
 
   if (select.id === "e_region" || select.id === "region") {
     select.querySelectorAll("option[value]").forEach(o => {
@@ -97,8 +108,10 @@ function setSelectValue(select, value) {
   const newCi = new Choices(select, getChoicesConfig(select));
   window.choicesInstances.set(select, newCi);
 
-  if (select.value) {
-    try { newCi.setChoiceByValue(select.value); } catch { }
+  if (targetValue) {
+    try { newCi.setChoiceByValue(targetValue); } catch { }
+  } else {
+    try { newCi.removeActiveItems(); } catch { }
   }
 }
 
