@@ -1523,8 +1523,10 @@ saveEditBtn?.addEventListener("click", async () => {
       updatedAt: serverTimestamp(),
     });
     setEditMsg(t("dash.msg_saved"), true);
+    const scrollPos = window.scrollY;
     await loadMyProperties();
     if (isAdmin) await loadAllProperties();
+    window.scrollTo(0, scrollPos);
     setTimeout(() => { try { editModalInstance?.hide(); } catch { } }, 450);
   } catch (e) {
     console.error(e);
