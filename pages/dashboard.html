@@ -800,7 +800,7 @@
 
   <!-- Edit property modal -->
   <div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width:1400px;width:95vw;">
       <div class="modal-content" style="border-radius:14px;border:0;">
 
         <div class="modal-header">
@@ -954,70 +954,85 @@
               </select>
             </div>
 
-            <div class="col-md-3">
-              <label class="form-label">
-                <span data-i18n="dash.price_label">Preț (€)</span>
-                <span class="text-danger">*</span>
-              </label>
-              <input id="e_price" type="number" step="any" class="form-control" required>
-            </div>
+            <!-- Row 1: Preț · Suprafață · Suprafața terenului · Nr. camere -->
+            <div class="col-12">
+              <div class="row g-3 align-items-end">
+                <div class="col-3">
+                  <label class="form-label">
+                    <span data-i18n="dash.price_label">Preț (€)</span>
+                    <span class="text-danger">*</span>
+                  </label>
+                  <input id="e_price" type="number" step="any" class="form-control" required>
+                </div>
 
-            <div class="col-md-3">
-              <label class="form-label" data-i18n="dash.area_label">Suprafață imobil (m²)</label>
-              <input id="e_area" type="number" step="any" class="form-control">
-            </div>
+                <div class="col-3">
+                  <label class="form-label" data-i18n="dash.area_label">Suprafață imobil (m²)</label>
+                  <input id="e_area" type="number" step="any" class="form-control">
+                </div>
 
-            <div class="col-md-5">
-              <label class="form-label" data-i18n="dash.land_area_label">Suprafața terenului</label>
-              <div class="land-area-group">
-                <input id="e_landArea" type="number" step="any" class="form-control" placeholder="0">
-                <select id="e_landAreaUnit" class="form-select">
-                  <option value="ha">ha</option>
-                  <option value="ac">ac</option>
-                  <option value="ari" selected>ari</option>
-                  <option value="m²">m²</option>
-                </select>
+                <div class="col-4">
+                  <label class="form-label" data-i18n="dash.land_area_label">Suprafața terenului</label>
+                  <div class="land-area-group">
+                    <input id="e_landArea" type="number" step="any" class="form-control" placeholder="0">
+                    <select id="e_landAreaUnit" class="form-select">
+                      <option value="ha">ha</option>
+                      <option value="ac">ac</option>
+                      <option value="ari" selected>ari</option>
+                      <option value="m²">m²</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="col-2">
+                  <label class="form-label" data-i18n="dash.rooms_label">Nr. camere</label>
+                  <input id="e_rooms" type="number" min="0" class="form-control">
+                </div>
               </div>
             </div>
 
-            <div class="col-md-2">
-              <label class="form-label" data-i18n="dash.rooms_label">Nr. camere</label>
-              <input id="e_rooms" type="number" min="0" class="form-control">
+            <!-- Row 2: Grup sanitar · Etaj · Total etaje · Înălțime -->
+            <div class="col-12">
+              <div class="row g-3 align-items-end">
+                <div class="col-3">
+                  <label class="form-label" data-i18n="dash.bathrooms_label">Grup sanitar</label>
+                  <input id="e_bathrooms" type="number" min="0" class="form-control">
+                </div>
+
+                <div class="col-2">
+                  <label class="form-label" data-i18n="dash.floor_label">Etaj</label>
+                  <input id="e_floor" type="number" min="0" class="form-control">
+                </div>
+
+                <div class="col-3">
+                  <label class="form-label" data-i18n="dash.total_floors_label">Total etaje</label>
+                  <input id="e_totalFloors" type="number" min="0" class="form-control">
+                </div>
+
+                <div class="col-4">
+                  <label class="form-label" data-i18n="dash.ceiling_label">Înălțimea camerelor (cm)</label>
+                  <input id="e_ceilingHeight" type="number" step="1" class="form-control">
+                </div>
+              </div>
             </div>
 
-            <div class="col-md-2">
-              <label class="form-label" data-i18n="dash.bathrooms_label">Grup sanitar</label>
-              <input id="e_bathrooms" type="number" min="0" class="form-control">
-            </div>
+            <!-- Row 3: Bucătărie · Balcoane · Garaje -->
+            <div class="col-12">
+              <div class="row g-3 align-items-end">
+                <div class="col-4">
+                  <label class="form-label" data-i18n="dash.kitchen_label">Suprafața bucătăriei (m²)</label>
+                  <input id="e_kitchenAera" type="number" step="any" class="form-control">
+                </div>
 
-            <div class="col-md-2">
-              <label class="form-label" data-i18n="dash.floor_label">Etaj</label>
-              <input id="e_floor" type="number" min="0" class="form-control">
-            </div>
+                <div class="col-4">
+                  <label class="form-label" data-i18n="dash.balconies_label">Balcoane</label>
+                  <input id="e_balconies" type="number" min="0" class="form-control">
+                </div>
 
-            <div class="col-md-2">
-              <label class="form-label" data-i18n="dash.total_floors_label">Total etaje</label>
-              <input id="e_totalFloors" type="number" min="0" class="form-control">
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label" data-i18n="dash.ceiling_label">Înălțimea camerelor (cm)</label>
-              <input id="e_ceilingHeight" type="number" step="1" class="form-control">
-            </div>
-
-            <div class="col-md-3">
-              <label class="form-label" data-i18n="dash.kitchen_label">Suprafața bucătăriei (m²)</label>
-              <input id="e_kitchenAera" type="number" step="any" class="form-control">
-            </div>
-
-            <div class="col-md-2">
-              <label class="form-label" data-i18n="dash.balconies_label">Balcoane</label>
-              <input id="e_balconies" type="number" min="0" class="form-control">
-            </div>
-
-            <div class="col-md-2">
-              <label class="form-label" data-i18n="dash.garages_label">Garaje</label>
-              <input id="e_garages" type="number" min="0" class="form-control">
+                <div class="col-4">
+                  <label class="form-label" data-i18n="dash.garages_label">Garaje</label>
+                  <input id="e_garages" type="number" min="0" class="form-control">
+                </div>
+              </div>
             </div>
 
             <div class="col-12">
