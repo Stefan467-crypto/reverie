@@ -564,7 +564,7 @@ function buildCard(p) {
 
   const regionRaw = String(p.region || "");
   const regionParts = parseRegionParts(regionRaw);
-  const img = String(p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "images/wmark.png");
+  const img = String(p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "images/img1.png");
 
   const status = normalizeStatus(p.status || p.state || p.availability || "active");
   const overlayTxt = translateStatus(status);
@@ -617,7 +617,7 @@ function buildCard(p) {
   const rawImgSrc = img;
   requestAnimationFrame(() => {
     const cardImg = col.querySelector(".card-img-top");
-    if (cardImg && rawImgSrc && !rawImgSrc.includes("wmark.png")) {
+    if (cardImg && rawImgSrc && !rawImgSrc.includes("wmark.png") && !rawImgSrc.includes("img1.png")) {
       compositeWatermark(rawImgSrc).then(dataUrl => {
         cardImg.src = dataUrl;
       }).catch(() => { /* fallback rămâne src original */ });
