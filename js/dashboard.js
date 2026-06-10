@@ -45,7 +45,7 @@ const secondaryAuth = getAuth(secondaryApp);
 
 const CLOUD_NAME = "dp1y1xv5l";
 const UPLOAD_PRESET = "reverie";
-const PROJECTS_STORAGE_KEY = "reverie_projects";
+
 
 
 const $ = id => document.getElementById(id);
@@ -456,16 +456,11 @@ function setProjectMsg(text, ok = true) {
   projectMsg.style.color = ok ? "#198754" : "#dc3545";
 }
 
-function getProjects() {
-  try {
-    return JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function saveProjects(items) {
-  localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(items));
+async function getProjects() {
+  const snap = await getDocs(collection(db, "projects"));
+  const items = [];
+  snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+  return items;
 }
 
 function getProjectTitle(project, lang = getCurrentLanguage()) {
@@ -474,9 +469,10 @@ function getProjectTitle(project, lang = getCurrentLanguage()) {
   return project.titleRo || project.titleEn || project.titleRu || "";
 }
 
-function renderProjectsList() {
+async function renderProjectsList() {
   if (!projectsList) return;
-  const items = getProjects().sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
+  projectsList.innerHTML = `<div class="col-12"><div class="small-muted">Se încarcă...</div></div>`;
+  const items = (await getProjects()).sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
   if (!items.length) {
     projectsList.innerHTML = `<div class="col-12"><div class="small-muted">${esc(t("dash.projects_empty") || "Nu există proiecte încă.")}</div></div>`;
     return;
@@ -503,9 +499,10 @@ function renderProjectsList() {
   });
 
   projectsList.querySelectorAll("[data-edit-project]").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-edit-project");
-      const project = getProjects().find(item => item.id === id);
+      const allProjects = await getProjects();
+      const project = allProjects.find(item => item.id === id);
       if (!project) return;
       editingProjectId = id;
       if (!projectEditModalInstance) projectEditModalInstance = new bootstrap.Modal($("projectEditModal"));
@@ -525,11 +522,10 @@ function renderProjectsList() {
   });
 
   projectsList.querySelectorAll("[data-remove-project]").forEach(btn => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-remove-project");
       if (!id || !confirm("Ștergi acest proiect?")) return;
-      const next = getProjects().filter(item => item.id !== id);
-      saveProjects(next);
+      await deleteDoc(doc(db, "projects", id));
       renderProjectsList();
       window.dispatchEvent(new Event("reverie-projects-updated"));
     });
@@ -598,21 +594,18 @@ projectEditForm?.addEventListener("submit", async (e) => {
     if (!titleRo || !titleEn || !titleRu) return setProjectMsg("Completează toate titlurile.", false);
     if (!date) return setProjectMsg("Selectează data proiectului.", false);
 
-    const existing = getProjects().find(item => item.id === editingProjectId);
+    const existing = (await getProjects()).find(item => item.id === editingProjectId);
     let imageUrl = existing?.imageUrl || "";
     if (projectEditPhotoFile) imageUrl = await uploadSingleImageToCloudinary(projectEditPhotoFile);
 
-    const next = getProjects();
-    const idx = next.findIndex(item => item.id === editingProjectId);
-    if (idx >= 0) {
-      next[idx] = { ...next[idx], titleRo, titleEn, titleRu, date, imageUrl, updatedAt: Date.now() };
-      saveProjects(next);
-      setProjectMsg("Proiectul a fost actualizat.", true);
-      editingProjectId = null;
-      renderProjectsList();
-      projectEditModalInstance?.hide();
-      window.dispatchEvent(new Event("reverie-projects-updated"));
-    }
+    await setDoc(doc(db, "projects", editingProjectId), {
+      titleRo, titleEn, titleRu, date, imageUrl, updatedAt: Date.now()
+    }, { merge: true });
+    setProjectMsg("Proiectul a fost actualizat.", true);
+    editingProjectId = null;
+    renderProjectsList();
+    projectEditModalInstance?.hide();
+    window.dispatchEvent(new Event("reverie-projects-updated"));
   } catch (err) {
     console.error(err);
     setProjectMsg(err?.message || "Eroare la salvarea proiectului.", false);
@@ -634,7 +627,7 @@ projectForm?.addEventListener("submit", async (e) => {
 
     let imageUrl = "";
     if (editingProjectId) {
-      const existing = getProjects().find(item => item.id === editingProjectId);
+      const existing = (await getProjects()).find(item => item.id === editingProjectId);
       imageUrl = existing?.imageUrl || "";
       if (projectPhotoFile) imageUrl = await uploadSingleImageToCloudinary(projectPhotoFile);
     } else {
@@ -642,16 +635,15 @@ projectForm?.addEventListener("submit", async (e) => {
       imageUrl = await uploadSingleImageToCloudinary(projectPhotoFile);
     }
 
-    const next = getProjects();
     if (editingProjectId) {
-      const idx = next.findIndex(item => item.id === editingProjectId);
-      if (idx >= 0) {
-        next[idx] = { ...next[idx], titleRo, titleEn, titleRu, date, imageUrl, updatedAt: Date.now() };
-      }
+      await setDoc(doc(db, "projects", editingProjectId), {
+        titleRo, titleEn, titleRu, date, imageUrl, updatedAt: Date.now()
+      }, { merge: true });
     } else {
-      next.unshift({ id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), titleRo, titleEn, titleRu, date, imageUrl, createdAt: Date.now() });
+      await addDoc(collection(db, "projects"), {
+        titleRo, titleEn, titleRu, date, imageUrl, createdAt: Date.now()
+      });
     }
-    saveProjects(next);
     setProjectMsg(editingProjectId ? "Proiectul a fost actualizat." : "Proiectul a fost adăugat cu succes.", true);
     editingProjectId = null;
     resetProjectForm();

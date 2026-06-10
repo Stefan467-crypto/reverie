@@ -67,9 +67,14 @@ function parseRegionParts(region) {
   return String(region ?? "").split(",").map(x => norm(x)).filter(Boolean);
 }
 
-function getProjectsFromStorage() {
+async function getProjectsFromFirestore() {
   try {
-    return JSON.parse(localStorage.getItem(PROJECTS_STORAGE_KEY) || "[]");
+    const { fsMod, db } = await getFirebase();
+    const { collection, getDocs } = fsMod;
+    const snap = await getDocs(collection(db, "projects"));
+    const items = [];
+    snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    return items;
   } catch {
     return [];
   }
@@ -89,12 +94,12 @@ function shouldUseProjectsMarquee(grid) {
   return grid.scrollWidth > container.getBoundingClientRect().width + 1;
 }
 
-function renderProjectsSection() {
+async function renderProjectsSection() {
   const section = document.querySelector(".projects-section");
   const grid = document.getElementById("projectsGrid");
   if (!section || !grid) return;
 
-  const items = getProjectsFromStorage().sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
+  const items = (await getProjectsFromFirestore()).sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
   if (!items.length) {
     section.style.display = "none";
     grid.classList.remove("projects-grid-row--marquee");
@@ -177,8 +182,6 @@ function getQueryParam(key) {
 }
 
 
-// ── Firebase
-const PROJECTS_STORAGE_KEY = "reverie_projects";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyCqXpk1NuWfiq6QjHViK80HLl9zwFVGNGo",
