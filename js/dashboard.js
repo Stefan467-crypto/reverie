@@ -363,6 +363,8 @@ let currentViewName = "home";
 
 let addFeaturesWidget = null;
 let editFeaturesWidget = null;
+let _cachedMyItems = [];
+let _cachedAllItems = [];
 let projectPhotoFile = null;
 let projectPhotoPreviewUrl = "";
 let projectEditPhotoFile = null;
@@ -416,7 +418,7 @@ function initChoices() {
 
 
 function showView(name) {
-  [viewHome, viewMy, viewAdd, viewAll, viewUsers, $("view-projects")].forEach(v => v?.classList.add("d-none"));
+  [viewHome, viewMy, viewAdd, viewAll, viewUsers, $("view-projects"), $("view-admin-stats")].forEach(v => v?.classList.add("d-none"));
   navButtons.forEach(b => b.classList.remove("active"));
   const activeBtn = navButtons.find(b => b.dataset.view === name);
   if (activeBtn) activeBtn.classList.add("active");
@@ -429,6 +431,7 @@ function showView(name) {
     projects: { el: $("view-projects"), titleKey: "dash.title_projects", subtitleKey: "dash.subtitle_projects" },
     all: { el: viewAll, titleKey: "dash.title_admin", subtitleKey: "dash.subtitle_admin" },
     users: { el: viewUsers, titleKey: "dash.title_users", subtitleKey: "dash.subtitle_users" },
+    "admin-stats": { el: $("view-admin-stats"), titleKey: "dash.admin_stats_title", subtitleKey: "dash.admin_stats_subtitle" },
   };
   const entry = map[name] || map.home;
   entry.el?.classList.remove("d-none");
@@ -440,6 +443,7 @@ function showView(name) {
   if (name === "projects") { if (!isAdmin) return showView("home"); resetProjectForm(); loadProjectsList(); }
   if (name === "all") { if (!isAdmin) return showView("home"); loadAllProperties(); }
   if (name === "users") { if (!isAdmin) return showView("home"); loadUsers(); }
+  if (name === "admin-stats") { if (!isAdmin) return showView("home"); loadAdminStats(); }
 }
 
 navButtons.forEach(btn => btn.addEventListener("click", () => showView(btn.dataset.view)));
@@ -804,12 +808,14 @@ async function loadMyProperties() {
       if (myPropsStatus) myPropsStatus.textContent = t("dash.no_props");
       if (statTotal) statTotal.textContent = "0";
       if (statLast) statLast.textContent = "-";
+      _cachedMyItems = [];
       return;
     }
     const items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    _cachedMyItems = items;
     if (myPropsStatus) myPropsStatus.textContent = t("dash.found", { count: items.length });
-    renderProperties(items, false);
+    renderFilteredProperties(false);
     if (statTotal) statTotal.textContent = String(items.length);
     if (statLast) statLast.textContent = items[items.length - 1]?.title || "-";
   } catch (e) {
@@ -985,6 +991,279 @@ async function loadStats() {
 }
 
 
+// ── Admin global statistics
+let _adminViewsChartInstance = null;
+
+async function loadAdminStats() {
+  if (!currentUser || !isAdmin) return;
+  const loading = document.getElementById("adminStatsLoading");
+  const content = document.getElementById("adminStatsContent");
+  if (loading) loading.style.display = "";
+  if (content) content.style.display = "none";
+
+  try {
+    // Fetch all properties
+    const propsSnap = await getDocs(collection(db, "properties"));
+    const allProps = [];
+    propsSnap.forEach(d => allProps.push({ id: d.id, ...d.data() }));
+
+    // Fetch all users (agents only)
+    const usersSnap = await getDocs(collection(db, "users"));
+    const agents = [];
+    usersSnap.forEach(d => {
+      const u = { uid: d.id, ...d.data() };
+      if (normalizeRole(u.role) !== "admin") agents.push(u);
+    });
+
+    const el = id => document.getElementById(id);
+    const now = Date.now();
+    const ms7  = 7  * 24 * 60 * 60 * 1000;
+    const ms30 = 30 * 24 * 60 * 60 * 1000;
+    const startOfMonth = new Date(); startOfMonth.setDate(1); startOfMonth.setHours(0,0,0,0);
+    const som = startOfMonth.getTime();
+
+    function tsToMs(v) {
+      if (!v) return 0;
+      if (typeof v.toMillis === "function") return v.toMillis();
+      if (typeof v.seconds === "number") return v.seconds * 1000;
+      if (typeof v === "number") return v;
+      return 0;
+    }
+
+    // Platform totals
+    let totalViews = 0, views7d = 0, addedMonth = 0;
+    let pActive = 0, pSold = 0, pRented = 0;
+    const buckets = {};
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(now - i * 24 * 60 * 60 * 1000);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      buckets[key] = 0;
+    }
+
+    // Activity log entries (most recent 40 across all props)
+    const logEntries = [];
+
+    allProps.forEach(p => {
+      totalViews += Number(p.viewCount || 0);
+      const created = tsToMs(p.createdAt);
+      if (created >= som) addedMonth++;
+      const s = normalizeStatus(p.status || p.state || p.availability || "active");
+      if (s === "active") pActive++;
+      else if (s === "sold") pSold++;
+      else if (s === "rented") pRented++;
+
+      // Log: created
+      if (created) logEntries.push({ ts: created, type: "add", agentId: p.agentId, title: p.title || p.code || "—" });
+      // Log: updated
+      const updated = tsToMs(p.updatedAt);
+      if (updated && updated !== created) logEntries.push({ ts: updated, type: "edit", agentId: p.agentId, title: p.title || p.code || "—" });
+
+      const log = Array.isArray(p.viewLog) ? p.viewLog : [];
+      log.forEach(entry => {
+        const ts = typeof entry === "number" ? entry : (entry?.ts || 0);
+        if (!ts) return;
+        const age = now - ts;
+        if (age <= ms7) views7d++;
+        if (age <= ms30) {
+          const d = new Date(ts);
+          const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+          if (key in buckets) buckets[key]++;
+        }
+      });
+    });
+
+    if (el("aStatTotalProps")) el("aStatTotalProps").textContent = allProps.length;
+    if (el("aStatTotalAgents")) el("aStatTotalAgents").textContent = agents.length;
+    if (el("aStatTotalViews")) el("aStatTotalViews").textContent = totalViews;
+    if (el("aStatAddedMonth")) el("aStatAddedMonth").textContent = addedMonth;
+    if (el("aStatActive")) el("aStatActive").textContent = pActive;
+    if (el("aStatSold")) el("aStatSold").textContent = pSold;
+    if (el("aStatRented")) el("aStatRented").textContent = pRented;
+    if (el("aStatViews7d")) el("aStatViews7d").textContent = views7d;
+
+    // ── Global chart
+    const chartCanvas = el("adminViewsChart");
+    const noViewsEl = el("adminStatsNoViews");
+    const hasViewLog = Object.values(buckets).some(v => v > 0);
+    if (chartCanvas && noViewsEl) {
+      if (!hasViewLog) {
+        noViewsEl.style.display = "";
+        chartCanvas.style.display = "none";
+      } else {
+        noViewsEl.style.display = "none";
+        chartCanvas.style.display = "";
+        if (_adminViewsChartInstance) { _adminViewsChartInstance.destroy(); _adminViewsChartInstance = null; }
+        _adminViewsChartInstance = new Chart(chartCanvas, {
+          type: "bar",
+          data: {
+            labels: Object.keys(buckets).map(k => { const [,m,d] = k.split("-"); return `${d}/${m}`; }),
+            datasets: [{
+              label: t("dash.admin_stats_chart_title"),
+              data: Object.values(buckets),
+              backgroundColor: "#b71c1c2e",
+              borderColor: "#9a1515",
+              borderWidth: 1.5,
+              borderRadius: 4,
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45 } },
+              y: { beginAtZero: true, ticks: { precision: 0, font: { size: 10 } } }
+            }
+          }
+        });
+      }
+    }
+
+    // ── Per-agent table
+    const tbody = el("adminStatsAgentTbody");
+    if (tbody && agents.length > 0) {
+      // Build per-agent stats
+      const agentStats = new Map();
+      agents.forEach(a => agentStats.set(a.uid, { agent: a, total: 0, active: 0, views: 0, views7d: 0, views30d: 0, lastTs: 0 }));
+
+      allProps.forEach(p => {
+        const stat = agentStats.get(p.agentId);
+        if (!stat) return;
+        stat.total++;
+        const s = normalizeStatus(p.status || p.state || p.availability || "active");
+        if (s === "active") stat.active++;
+        stat.views += Number(p.viewCount || 0);
+        const created = tsToMs(p.createdAt);
+        const updated = tsToMs(p.updatedAt);
+        const latest = Math.max(created, updated);
+        if (latest > stat.lastTs) stat.lastTs = latest;
+
+        const log = Array.isArray(p.viewLog) ? p.viewLog : [];
+        log.forEach(entry => {
+          const ts = typeof entry === "number" ? entry : (entry?.ts || 0);
+          if (!ts) return;
+          const age = now - ts;
+          if (age <= ms7) stat.views7d++;
+          if (age <= ms30) stat.views30d++;
+        });
+      });
+
+      const lang = getCurrentLanguage();
+      const locale = lang === "en" ? "en-GB" : lang === "ru" ? "ru-RU" : "ro-RO";
+      const rows = [...agentStats.values()].sort((a,b) => b.total - a.total);
+
+      tbody.innerHTML = "";
+      rows.forEach(({ agent: a, total, active, views, views7d: v7, views30d: v30, lastTs }) => {
+        const photo = a.photoUrl || a.photo || "";
+        const avatarEl = photo
+          ? `<img src="${esc(photo)}" class="agent-photo-sm" alt="">`
+          : `<span class="agent-avatar-sm">${esc((a.name || "?").charAt(0).toUpperCase())}</span>`;
+        const lastStr = lastTs ? new Date(lastTs).toLocaleDateString(locale, { day:"numeric", month:"short", year:"numeric" }) : "—";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><div class="d-flex align-items-center gap-2">${avatarEl}<span class="agent-name-cell">${esc(a.name || a.email || "—")}</span></div></td>
+          <td>${total}</td>
+          <td>${active}</td>
+          <td>${views}</td>
+          <td>${v7}</td>
+          <td>${v30}</td>
+          <td class="small-muted">${lastStr}</td>`;
+        tbody.appendChild(tr);
+      });
+    } else if (tbody) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center small-muted py-3">${t("dash.admin_stats_no_agents")}</td></tr>`;
+    }
+
+    // ── Activity log — store all entries on window for filter re-renders
+    logEntries.sort((a,b) => b.ts - a.ts);
+    window._adminLogEntries = logEntries;
+
+    renderAdminLog(logEntries, "all", null, null);
+
+    // Wire filter buttons (only attach once)
+    const filterBar = document.getElementById("logFilterBar");
+    if (filterBar && !filterBar._wired) {
+      filterBar._wired = true;
+      const periodInputs = document.getElementById("logPeriodInputs");
+      const applyBtn     = document.getElementById("logPeriodApply");
+      const fromInput    = document.getElementById("logFromDate");
+      const toInput      = document.getElementById("logToDate");
+
+      filterBar.querySelectorAll(".log-filter-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          filterBar.querySelectorAll(".log-filter-btn").forEach(b => {
+            b.classList.remove("active","btn-danger");
+            b.classList.add("btn-outline-secondary");
+          });
+          btn.classList.add("active","btn-danger");
+          btn.classList.remove("btn-outline-secondary");
+          const f = btn.dataset.filter;
+          if (f === "period") {
+            periodInputs?.classList.remove("d-none");
+          } else {
+            periodInputs?.classList.add("d-none");
+            renderAdminLog(window._adminLogEntries || [], f, null, null);
+          }
+        });
+      });
+      applyBtn?.addEventListener("click", () => {
+        const from = fromInput?.value ? new Date(fromInput.value).getTime() : null;
+        const to   = toInput?.value   ? new Date(toInput.value).getTime() + 86399999 : null;
+        renderAdminLog(window._adminLogEntries || [], "period", from, to);
+      });
+    }
+
+  } catch (e) {
+    console.error("loadAdminStats error:", e);
+  } finally {
+    if (loading) loading.style.display = "none";
+    if (content) content.style.display = "";
+  }
+}
+
+function renderAdminLog(entries, filter, fromTs, toTs) {
+  const logEl = document.getElementById("adminActivityLog");
+  if (!logEl) return;
+  const now = Date.now();
+  const startOfToday = new Date(); startOfToday.setHours(0,0,0,0);
+  const startOfYesterday = new Date(startOfToday); startOfYesterday.setDate(startOfYesterday.getDate()-1);
+  const startOfWeek = new Date(startOfToday); startOfWeek.setDate(startOfWeek.getDate()-6);
+
+  let filtered = entries;
+  if (filter === "today")     filtered = entries.filter(e => e.ts >= startOfToday.getTime());
+  else if (filter === "yesterday") filtered = entries.filter(e => e.ts >= startOfYesterday.getTime() && e.ts < startOfToday.getTime());
+  else if (filter === "week") filtered = entries.filter(e => e.ts >= startOfWeek.getTime());
+  else if (filter === "period" && fromTs) filtered = entries.filter(e => e.ts >= fromTs && (!toTs || e.ts <= toTs));
+
+  const recent = filtered.slice(0, 50);
+  if (recent.length === 0) {
+    logEl.innerHTML = `<li class="activity-log-item"><span class="activity-log-text small-muted">${t("dash.admin_stats_logs_empty")}</span></li>`;
+    return;
+  }
+  const lang = getCurrentLanguage();
+  const locale = lang === "en" ? "en-GB" : lang === "ru" ? "ru-RU" : "ro-RO";
+  logEl.innerHTML = "";
+  recent.forEach(entry => {
+    const agentName = getUserDisplayName(entry.agentId, "—");
+    const d = entry.ts ? new Date(entry.ts) : null;
+    const dateStr = d ? d.toLocaleDateString(locale, { day:"numeric", month:"short", year:"numeric" }) : "—";
+    const timeStr = d ? d.toLocaleTimeString(locale, { hour:"2-digit", minute:"2-digit" }) : "";
+    const typeKey = entry.type === "add" ? "dash.admin_stats_log_prop_added" : "dash.admin_stats_log_prop_edited";
+    const dotClass = entry.type === "add" ? "activity-log-dot--add" : "activity-log-dot--edit";
+    const li = document.createElement("li");
+    li.className = "activity-log-item";
+    li.innerHTML = `
+      <span class="activity-log-dot ${dotClass}"></span>
+      <span class="activity-log-time">${dateStr}${timeStr ? ` <span style="opacity:.6">${timeStr}</span>` : ""}</span>
+      <span class="activity-log-text">
+        <strong>${esc(agentName)}</strong>
+        <span class="activity-log-agent"> — ${t(typeKey)}:</span>
+        ${esc(entry.title)}
+      </span>`;
+    logEl.appendChild(li);
+  });
+}
+
+
 // ── Load all properties (admin)
 async function loadAllProperties() {
   if (!currentUser || !isAdmin) return;
@@ -995,8 +1274,9 @@ async function loadAllProperties() {
     const snap = await getDocs(collection(db, "properties"));
     const items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+    _cachedAllItems = items;
     if (allPropsStatus) allPropsStatus.textContent = t("dash.all_total", { count: items.length });
-    renderProperties(items, true);
+    renderFilteredProperties(true);
   } catch (e) {
     console.error(e);
     if (allPropsStatus) allPropsStatus.textContent = t("dash.load_error");
@@ -1007,10 +1287,35 @@ refreshMyBtn?.addEventListener("click", loadMyProperties);
 refreshAllBtn?.addEventListener("click", loadAllProperties);
 
 
+function _normCode(s) {
+  return String(s || "").toLowerCase().trim();
+}
+
+function renderFilteredProperties(adminMode) {
+  const items = adminMode ? _cachedAllItems : _cachedMyItems;
+  const searchEl = adminMode ? $("allPropsSearch") : $("myPropsSearch");
+  const q = _normCode(searchEl?.value || "");
+  const filtered = q
+    ? items.filter(p => _normCode(p.code || "").includes(q) || _normCode(String(p.id || "")).includes(q))
+    : items;
+  renderProperties(filtered, adminMode);
+}
+
+
 function renderProperties(items, adminMode) {
   const grid = adminMode ? allPropsGrid : myPropsGrid;
   if (!grid) return;
   grid.innerHTML = "";
+
+  // Sort newest-first
+  function _tsToMs(v) {
+    if (!v) return 0;
+    if (typeof v.toMillis === "function") return v.toMillis();
+    if (typeof v.seconds === "number") return v.seconds * 1000;
+    if (typeof v === "number") return v;
+    return 0;
+  }
+  items = [...items].sort((a, b) => _tsToMs(b.createdAt) - _tsToMs(a.createdAt));
 
   items.forEach(p => {
     const st = normalizeStatus(p.status);
@@ -1212,6 +1517,10 @@ function ensurePropertyTransferModal() {
 
   const fillAgents = currentAgentId => {
     if (!pt_to) return;
+    // Destroy existing Choices instance if any
+    const existingCi = window.choicesInstances?.get(pt_to);
+    if (existingCi) { try { existingCi.destroy(); } catch { } window.choicesInstances?.delete(pt_to); }
+
     pt_to.innerHTML = "";
     getAgentsList().forEach(a => {
       const opt = document.createElement("option");
@@ -1220,6 +1529,13 @@ function ensurePropertyTransferModal() {
     });
     const first = getAgentsList().find(a => a.uid !== currentAgentId);
     if (first) pt_to.value = first.uid;
+
+    // Init Choices.js for styled dropdown
+    try {
+      const ci = new Choices(pt_to, { ...getChoicesConfig(pt_to), searchEnabled: true, removeItemButton: false });
+      window.choicesInstances?.set(pt_to, ci);
+      if (first) { try { ci.setChoiceByValue(first.uid); } catch { } }
+    } catch { }
   };
 
   el.addEventListener("show.bs.modal", async () => {
@@ -1457,6 +1773,9 @@ async function openEditModal(id, adminMode) {
     if (e_garages) e_garages.value = p.garages ?? "";
 
     editFeaturesWidget?.setSelected(Array.isArray(p.features) ? p.features : []);
+    // Clear features search input each time the modal opens
+    const eFeatSearch = $("e_featuresSearch");
+    if (eFeatSearch) { eFeatSearch.value = ""; eFeatSearch.dispatchEvent(new Event("input")); }
     setEditStatusUI(normalizeStatus(p.status));
     existingImageUrls = Array.isArray(p.images) ? [...p.images] : [];
     newImageFiles = [];
@@ -1666,13 +1985,96 @@ function renderUsersTable() {
 
 function fillTransferSelects() {
   if (!tr_from || !tr_to) return;
-  const agents = getAgentsList().map(a => ({ uid: a.uid, label: a.name }));
-  const build = sel => {
-    sel.innerHTML = "";
-    agents.forEach(a => { const opt = document.createElement("option"); opt.value = a.uid; opt.textContent = a.label; sel.appendChild(opt); });
-  };
-  build(tr_from); build(tr_to);
-  if (agents.length >= 2) { tr_from.value = agents[0].uid; tr_to.value = agents[1].uid; }
+  const agents = usersCache
+    .filter(u => normalizeRole(u.role) !== "admin")
+    .map(u => ({ uid: u.uid, name: u.name || u.email || "—", photo: u.photoUrl || u.photo || "" }));
+
+  buildAgentDropdown(tr_from, agents, agents[0]?.uid || "");
+  buildAgentDropdown(tr_to,   agents, agents[1]?.uid || agents[0]?.uid || "");
+}
+
+function buildAgentDropdown(nativeSelect, agents, selectedUid) {
+  // Destroy any existing Choices instance
+  const existingCi = window.choicesInstances?.get(nativeSelect);
+  if (existingCi) { try { existingCi.destroy(); } catch { } window.choicesInstances?.delete(nativeSelect); }
+
+  // Populate native select (kept for form value reading)
+  nativeSelect.innerHTML = "";
+  agents.forEach(a => {
+    const opt = document.createElement("option");
+    opt.value = a.uid; opt.textContent = a.name;
+    if (a.uid === selectedUid) opt.selected = true;
+    nativeSelect.appendChild(opt);
+  });
+
+  // Remove any existing custom dropdown sibling
+  const existingDD = nativeSelect.nextElementSibling;
+  if (existingDD?.classList.contains("agent-dd")) existingDD.remove();
+
+  // Hide native select
+  nativeSelect.style.cssText = "position:absolute;opacity:0;pointer-events:none;width:0;height:0;";
+
+  const current = agents.find(a => a.uid === selectedUid) || agents[0];
+
+  function avatarHTML(a, size) {
+    const s = size + "px";
+    const r = size <= 24 ? "6px" : "8px";
+    const fs = size <= 24 ? "0.6rem" : "0.68rem";
+    if (a.photo) return `<img src="${esc(a.photo)}" style="width:${s};height:${s};border-radius:${r};object-fit:cover;flex-shrink:0;" alt="">`;
+    return `<span style="width:${s};height:${s};border-radius:${r};background:#f1f5f9;display:inline-flex;align-items:center;justify-content:center;font-size:${fs};font-weight:700;color:#64748b;flex-shrink:0;">${esc(a.name.charAt(0).toUpperCase())}</span>`;
+  }
+
+  const dd = document.createElement("div");
+  dd.className = "agent-dd";
+  dd.innerHTML = `
+    <div class="agent-dd__trigger">
+      <div class="agent-dd__selected">
+        ${avatarHTML(current, 24)}
+        <span class="agent-dd__name">${esc(current.name)}</span>
+      </div>
+      <svg class="agent-dd__arrow" width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="agent-dd__list" style="display:none;">
+      ${agents.map(a => `
+        <div class="agent-dd__option${a.uid === (current?.uid || "") ? " agent-dd__option--active" : ""}" data-uid="${esc(a.uid)}">
+          ${avatarHTML(a, 28)}
+          <span>${esc(a.name)}</span>
+        </div>`).join("")}
+    </div>`;
+
+  nativeSelect.parentNode.insertBefore(dd, nativeSelect.nextSibling);
+
+  const trigger = dd.querySelector(".agent-dd__trigger");
+  const list    = dd.querySelector(".agent-dd__list");
+  const arrow   = dd.querySelector(".agent-dd__arrow");
+
+  trigger.addEventListener("click", e => {
+    e.stopPropagation();
+    const open = list.style.display !== "none";
+    // Close all other dropdowns
+    document.querySelectorAll(".agent-dd__list").forEach(l => { l.style.display = "none"; });
+    document.querySelectorAll(".agent-dd__arrow").forEach(a => a.classList.remove("agent-dd__arrow--open"));
+    if (!open) { list.style.display = ""; arrow.classList.add("agent-dd__arrow--open"); }
+  });
+
+  list.querySelectorAll(".agent-dd__option").forEach(opt => {
+    opt.addEventListener("click", () => {
+      const uid = opt.dataset.uid;
+      const agent = agents.find(a => a.uid === uid);
+      if (!agent) return;
+      // Update native select value
+      nativeSelect.value = uid;
+      // Update display
+      dd.querySelector(".agent-dd__selected").innerHTML = `${avatarHTML(agent, 24)}<span class="agent-dd__name">${esc(agent.name)}</span>`;
+      list.querySelectorAll(".agent-dd__option").forEach(o => o.classList.toggle("agent-dd__option--active", o.dataset.uid === uid));
+      list.style.display = "none";
+      arrow.classList.remove("agent-dd__arrow--open");
+    });
+  });
+
+  document.addEventListener("click", () => { list.style.display = "none"; arrow.classList.remove("agent-dd__arrow--open"); });
 }
 
 usersSearch?.addEventListener("input", () => renderUsersTable());
@@ -1862,7 +2264,13 @@ ue_delete?.addEventListener("click", async () => {
 
 
 transferSwap?.addEventListener("click", () => {
-  const a = tr_from.value; tr_from.value = tr_to.value; tr_to.value = a;
+  const fromUid = tr_from.value;
+  const toUid   = tr_to.value;
+  const agents = usersCache
+    .filter(u => normalizeRole(u.role) !== "admin")
+    .map(u => ({ uid: u.uid, name: u.name || u.email || "—", photo: u.photoUrl || u.photo || "" }));
+  buildAgentDropdown(tr_from, agents, toUid);
+  buildAgentDropdown(tr_to,   agents, fromUid);
 });
 
 transferBtn?.addEventListener("click", async () => {
@@ -1958,6 +2366,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (window.innerWidth < 992) document.body.classList.remove("sidebar-open");
     });
   });
+
+  // ── Code search for my properties and all properties
+  const myPropsSearch = $("myPropsSearch");
+  const allPropsSearch = $("allPropsSearch");
+  if (myPropsSearch) {
+    myPropsSearch.addEventListener("input", () => { if (_cachedMyItems.length) renderFilteredProperties(false); });
+  }
+  if (allPropsSearch) {
+    allPropsSearch.addEventListener("input", () => { if (_cachedAllItems.length) renderFilteredProperties(true); });
+  }
 });
 
 onAuthStateChanged(auth, async user => {
@@ -1978,6 +2396,8 @@ onAuthStateChanged(auth, async user => {
   if (navAllBtn) navAllBtn.classList.toggle("d-none", !isAdmin);
   if (navUsersBtn) navUsersBtn.classList.toggle("d-none", !isAdmin);
   if (navProjectsBtn) navProjectsBtn.classList.toggle("d-none", !isAdmin);
+  const navAdminStatsBtn = $("navAdminStatsBtn");
+  if (navAdminStatsBtn) navAdminStatsBtn.classList.toggle("d-none", !isAdmin);
 
 
   await initCode();

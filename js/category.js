@@ -1113,6 +1113,16 @@ async function initPropertyGrid() {
       return;
     }
 
+    // Sort newest-first (default "popular" order)
+    function tsToMs(v) {
+      if (!v) return 0;
+      if (typeof v.toMillis === "function") return v.toMillis();
+      if (typeof v.seconds === "number") return v.seconds * 1000;
+      if (typeof v === "number") return v;
+      return 0;
+    }
+    items.sort((a, b) => tsToMs(b.createdAt) - tsToMs(a.createdAt));
+
     grid.innerHTML = "";
     const isDashboard = window.location.pathname.includes("dashboard.html");
     const adminMode = isDashboard && localStorage.getItem("rv_role") === "admin";

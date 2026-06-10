@@ -14,106 +14,144 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <style>
+    /* ── Stat cards — minimal monochrome ────────────────────── */
     .stats-section-title {
-      font-size: 0.78rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--red-700, #b71c1c);
-      opacity: 0.85;
+      letter-spacing: 0.1em;
+      color: #000000;
     }
 
     .stat-card {
       background: #fff;
-      border-radius: 14px;
+      border-radius: 10px;
       padding: 1rem 1.1rem;
-      box-shadow: 0 1px 6px rgba(0, 0, 0, .07);
+      box-shadow: 0 0 0 1px #f1f5f9, 0 1px 3px rgba(0,0,0,.04);
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      border-left: 4px solid transparent;
       height: 100%;
     }
-
-    .stat-card__icon {
-      font-size: 1.1rem;
-      opacity: .55;
-    }
-
     .stat-card__value {
-      font-size: 1.6rem;
+      font-size: 1.75rem;
       font-weight: 800;
-      line-height: 1.1;
+      line-height: 1;
+      color: #b71c1c;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
     }
-
     .stat-card__value--sm {
-      font-size: 0.88rem;
-      font-weight: 700;
-      line-height: 1.3;
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #94a3b8;
       word-break: break-word;
+      margin-bottom: 4px;
     }
-
     .stat-card__label {
-      font-size: 0.72rem;
-      color: #888;
+      font-size: 0.69rem;
+      color: #000000;
       font-weight: 500;
     }
-
-    .stat-card--active {
-      border-left-color: #22c55e;
+    .stat-card__icon {
+      font-size: 0.85rem;
+      color: #000000;
+      margin-left: auto;
     }
-
-    .stat-card--active .stat-card__icon {
-      color: #22c55e;
+    .stat-card__badge {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding: 2px 7px;
+      border-radius: 20px;
+      margin-bottom: 8px;
+      background: #f8fafc;
+      color: #000000;
+      border: 1px solid #f1f5f9;
+      width: fit-content;
     }
+    
+    .stat-row { display:flex; align-items:flex-start; justify-content:space-between; }
 
-    .stat-card--sold {
-      border-left-color: #ef4444;
+    /* ── Admin stats table ──────────────────────────────────── */
+    #adminStatsTable th {
+      font-size: 0.67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #b71c1c;
+      border-bottom: 1px solid #f1f5f9;
+      padding: 0.5rem 0.75rem;
+      white-space: nowrap;
+      background: #fafafa;
     }
+    #adminStatsTable td {
+      font-size: 0.81rem;
+      padding: 0.55rem 0.75rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #f8fafc;
+      color: #334155;
+    }
+    #adminStatsTable tr:last-child td { border-bottom: none; }
+    #adminStatsTable tr:hover td { background: #fafafa; }
+    .agent-name-cell { font-weight: 600; color: #9a1515; }
+    .agent-photo-sm { width:28px;height:28px;border-radius:7px;object-fit:cover;border:1px solid #f1f5f9; }
+    .agent-avatar-sm { width:28px;height:28px;border-radius:7px;background:#f8fafc;display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:#94a3b8;border:1px solid #f1f5f9; }
 
-    .stat-card--sold .stat-card__icon {
-      color: #ef4444;
-    }
+    /* ── Activity log ───────────────────────────────────────── */
+    .activity-log-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; }
+    .activity-log-item { display:flex; align-items:flex-start; gap:10px; padding:0.5rem 0.4rem; border-radius:6px; font-size:0.77rem; }
+    .activity-log-item:hover { background:#fafafa; }
+    .activity-log-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+    .activity-log-dot--add  { background:#86efac; }
+    .activity-log-dot--edit { background:#334155; }
+    .activity-log-time { color:#334155; white-space:nowrap; flex-shrink:0; font-size:0.72rem; }
+    .activity-log-text { color:#334155; flex:1; }
+    .activity-log-agent { color:#334155; }
 
-    .stat-card--rented {
-      border-left-color: #f59e0b;
-    }
+    /* ── Log filter pills ───────────────────────────────────── */
+    .log-filter-btn { border-radius:20px; font-size:0.7rem; font-weight:600; padding:3px 12px; }
+    .log-filter-btn.active { background:#9a1515; border-color:#9a1515; color:#fff; }
+    .log-filter-btn:not(.active) { border-color:#e2e8f0; color:#b71c1c; background:#fff; }
+    .log-filter-btn:not(.active):hover { background:#f8fafc; color:#9a1515; }
 
-    .stat-card--rented .stat-card__icon {
-      color: #f59e0b;
+    /* ── Agent custom dropdown ──────────────────────────────── */
+    .agent-dd { position:relative; }
+    .agent-dd__trigger {
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; padding:9px 13px;
+      border:1px solid #e2e8f0; border-radius:10px;
+      background:#fff; cursor:pointer;
+      transition:border-color .15s, box-shadow .15s;
+      user-select:none;
     }
+    .agent-dd__trigger:hover { border-color:#cbd5e1; }
+    .agent-dd__trigger:focus-within,
+    .agent-dd--open .agent-dd__trigger { border-color:#94a3b8; box-shadow:0 0 0 3px rgba(15,23,42,.05); }
+    .agent-dd__selected { display:flex; align-items:center; gap:9px; font-size:0.84rem; font-weight:500; color:#1e293b; }
+    .agent-dd__name { line-height:1; }
+    .agent-dd__arrow { color:#94a3b8; flex-shrink:0; transition:transform .18s; }
+    .agent-dd__arrow--open { transform:rotate(180deg); }
+    .agent-dd__list {
+      position:absolute; top:calc(100% + 5px); left:0; right:0; z-index:200;
+      background:#fff; border:1px solid #e2e8f0; border-radius:10px;
+      box-shadow:0 4px 16px rgba(0,0,0,.08);
+      overflow:hidden;
+    }
+    .agent-dd__option {
+      display:flex; align-items:center; gap:10px;
+      padding:9px 13px; font-size:0.83rem; color:#334155;
+      cursor:pointer; transition:background .1s;
+    }
+    .agent-dd__option:hover { background:#f8fafc; }
+    .agent-dd__option--active { background:#f8fafc; font-weight:600; color:#0f172a; }
+    .agent-dd__option--active::after { content:"✓"; margin-left:auto; font-size:0.75rem; color:#94a3b8; }
 
-    .stat-card--stopped {
-      border-left-color: #94a3b8;
-    }
-
-    .stat-card--stopped .stat-card__icon {
-      color: #94a3b8;
-    }
-
-    .stat-card--views {
-      border-left-color: #6366f1;
-    }
-
-    .stat-card--views .stat-card__icon {
-      color: #6366f1;
-    }
-
-    .stat-card--top {
-      border-left-color: #f59e0b;
-    }
-
-    .stat-card--top .stat-card__icon {
-      color: #f59e0b;
-    }
-
-    .stat-card--neutral {
-      border-left-color: #cbd5e1;
-    }
-
-    .stat-card--neutral .stat-card__icon {
-      color: #64748b;
-    }
+    /* ── Transfer card ──────────────────────────────────────── */
+    .transfer-card { border-radius:12px; border:1px solid #f1f5f9 !important; }
+    .transfer-card .card-body { padding:1.1rem 1.2rem; }
   </style>
   <!-- Restore language before render to prevent FOUC -->
   <script>(function () { try { document.documentElement.lang = localStorage.getItem("reverie_lang") || "ro" } catch (e) { } })()</script>
@@ -159,6 +197,9 @@
 
         <div id="adminSep" class="small-muted px-1 d-none" style="font-weight:600;opacity:.75;margin-top:10px;"
           data-i18n="dash.nav_admin_sep">Admin</div>
+        <button class="navbtn d-none" data-view="admin-stats" id="navAdminStatsBtn">
+          <span data-i18n="dash.nav_admin_stats">Statistici globale</span>
+        </button>
         <button class="navbtn d-none" data-view="all" id="navAllBtn">
           <span data-i18n="dash.nav_admin_panel">Panou Admin</span>
         </button>
@@ -235,29 +276,41 @@
           <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
               <div class="stat-card stat-card--active">
-                <div class="stat-card__icon"><i class="fa-solid fa-house-circle-check"></i></div>
-                <div class="stat-card__value" id="statActive">—</div>
+                <div class="stat-card__badge" data-i18n="dash.stats_active_badge">Active</div>
+                <div class="stat-row">
+                  <div class="stat-card__value" id="statActive">—</div>
+                  <div class="stat-card__icon"><i class="fa-solid fa-house-circle-check"></i></div>
+                </div>
                 <div class="stat-card__label" data-i18n="dash.stats_active">Proprietăți active</div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="stat-card stat-card--sold">
-                <div class="stat-card__icon"><i class="fa-solid fa-handshake"></i></div>
-                <div class="stat-card__value" id="statSold">—</div>
+                <div class="stat-card__badge" data-i18n="dash.stats_sold_badge">Vândute</div>
+                <div class="stat-row">
+                  <div class="stat-card__value" id="statSold">—</div>
+                  <div class="stat-card__icon"><i class="fa-solid fa-handshake"></i></div>
+                </div>
                 <div class="stat-card__label" data-i18n="dash.stats_sold">Proprietăți vândute</div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="stat-card stat-card--rented">
-                <div class="stat-card__icon"><i class="fa-solid fa-key"></i></div>
-                <div class="stat-card__value" id="statRented">—</div>
+                <div class="stat-card__badge" data-i18n="dash.stats_rented_badge">Închiriate</div>
+                <div class="stat-row">
+                  <div class="stat-card__value" id="statRented">—</div>
+                  <div class="stat-card__icon"><i class="fa-solid fa-key"></i></div>
+                </div>
                 <div class="stat-card__label" data-i18n="dash.stats_rented">Proprietăți închiriate</div>
               </div>
             </div>
             <div class="col-6 col-md-3">
               <div class="stat-card stat-card--stopped">
-                <div class="stat-card__icon"><i class="fa-solid fa-circle-pause"></i></div>
-                <div class="stat-card__value" id="statStopped">—</div>
+                <div class="stat-card__badge" data-i18n="dash.stats_stopped_badge">Stopate</div>
+                <div class="stat-row">
+                  <div class="stat-card__value" id="statStopped">—</div>
+                  <div class="stat-card__icon"><i class="fa-solid fa-circle-pause"></i></div>
+                </div>
                 <div class="stat-card__label" data-i18n="dash.stats_stopped">Proprietăți stopate</div>
               </div>
             </div>
@@ -355,10 +408,14 @@
       <section id="view-my" class="d-none">
         <div class="card shadow-sm">
           <div class="card-body p-4">
-            <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
               <h2 class="h5 m-0" data-i18n="dash.title_my">Proprietățile mele</h2>
-              <button class="btn btn-outline-secondary btn-sm" id="refreshMyBtn"
-                data-i18n="dash.refresh">Reîmprospătare</button>
+              <div class="d-flex gap-2 align-items-center flex-wrap">
+                <input id="myPropsSearch" type="text" class="form-control form-control-sm" style="max-width:220px;"
+                  data-i18n="dash.search_by_code_ph" data-i18n-attr="placeholder" placeholder="Caută după cod...">
+                <button class="btn btn-outline-secondary btn-sm" id="refreshMyBtn"
+                  data-i18n="dash.refresh">Reîmprospătare</button>
+              </div>
             </div>
             <div id="myPropsStatus" class="small-muted mb-3" data-i18n="dash.loading">Se încarcă...</div>
             <div id="myPropsGrid" class="row g-3"></div>
@@ -431,8 +488,12 @@
             <h5 class="mb-0" data-i18n="dash.all_title">Toate proprietățile</h5>
             <div class="small text-muted" id="allPropsStatus">—</div>
           </div>
-          <button id="refreshAllBtn" class="btn btn-sm btn-outline-secondary"
-            data-i18n="dash.refresh">Reîmprospătare</button>
+          <div class="d-flex gap-2 align-items-center flex-wrap">
+            <input id="allPropsSearch" type="text" class="form-control form-control-sm" style="max-width:220px;"
+              data-i18n="dash.search_by_code_ph" data-i18n-attr="placeholder" placeholder="Caută după cod...">
+            <button id="refreshAllBtn" class="btn btn-sm btn-outline-secondary"
+              data-i18n="dash.refresh">Reîmprospătare</button>
+          </div>
         </div>
         <div class="row g-3" id="allPropsGrid"></div>
       </section>
@@ -497,16 +558,25 @@
 
               <!-- Transfer properties -->
               <div class="col-12 col-lg-6">
-                <div class="card shadow-sm">
+                <div class="card shadow-sm transfer-card">
                   <div class="card-body">
-                    <h6 class="mb-2" data-i18n="dash.transfer_title">Transfer proprietăți între agenți</h6>
+                    <h6 class="mb-3 d-flex align-items-center gap-2" data-i18n="dash.transfer_title">
+                      <i class="fa-solid fa-right-left opacity-50"></i>
+                      Transfer proprietăți între agenți
+                    </h6>
                     <div class="row g-2">
-                      <div class="col-12"><select id="tr_from" class="form-select transfer-select"></select></div>
-                      <div class="col-12"><select id="tr_to" class="form-select transfer-select"></select></div>
-                      <div class="col-12 d-flex gap-2">
-                        <button id="transferBtn" class="btn btn-danger" type="button"
+                      <div class="col-12">
+                        <label class="form-label small fw-semibold text-muted mb-1" data-i18n="dash.transfer_from_label">De la</label>
+                        <select id="tr_from" class="form-select transfer-select"></select>
+                      </div>
+                      <div class="col-12">
+                        <label class="form-label small fw-semibold text-muted mb-1" data-i18n="dash.transfer_to_label">Către</label>
+                        <select id="tr_to" class="form-select transfer-select"></select>
+                      </div>
+                      <div class="col-12 d-flex gap-2 mt-1">
+                        <button id="transferBtn" class="btn btn-danger btn-sm" type="button"
                           data-i18n="dash.transfer_btn">Transferă</button>
-                        <button id="transferSwap" class="btn btn-outline-secondary" type="button"
+                        <button id="transferSwap" class="btn btn-outline-secondary btn-sm" type="button"
                           data-i18n="dash.swap_btn">Schimbă</button>
                       </div>
                       <div class="col-12">
@@ -545,7 +615,145 @@
         </div>
       </section>
 
-      <!-- ADD PROPERTY VIEW -->
+      <!-- ADMIN STATS VIEW -->
+      <section id="view-admin-stats" class="d-none">
+
+        <!-- Platform stats -->
+        <h6 class="stats-section-title mb-3">
+          <i class="fa-solid fa-globe me-2"></i>
+          <span data-i18n="dash.admin_stats_section_platform">Platformă</span>
+        </h6>
+        <div id="adminStatsLoading" class="small-muted mb-3" data-i18n="dash.admin_stats_loading">Se încarcă statisticile...</div>
+        <div id="adminStatsContent" style="display:none;">
+          <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--blue">
+                <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>
+                <div class="stat-card__value" id="aStatTotalProps">—</div>
+                <div class="stat-card__label" data-i18n="dash.admin_stats_total_props">Total proprietăți</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--teal">
+                <div class="stat-card__icon"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-card__value" id="aStatTotalAgents">—</div>
+                <div class="stat-card__label" data-i18n="dash.admin_stats_total_agents">Total agenți</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--views">
+                <div class="stat-card__icon"><i class="fa-solid fa-eye"></i></div>
+                <div class="stat-card__value" id="aStatTotalViews">—</div>
+                <div class="stat-card__label" data-i18n="dash.admin_stats_total_views">Vizualizări totale</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--neutral">
+                <div class="stat-card__icon"><i class="fa-solid fa-plus"></i></div>
+                <div class="stat-card__value" id="aStatAddedMonth">—</div>
+                <div class="stat-card__label" data-i18n="dash.admin_stats_added_month">Adăugate luna aceasta</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--active">
+                <div class="stat-card__icon"><i class="fa-solid fa-house-circle-check"></i></div>
+                <div class="stat-card__value" id="aStatActive">—</div>
+                <div class="stat-card__label" data-i18n="dash.stats_active">Proprietăți active</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--sold">
+                <div class="stat-card__icon"><i class="fa-solid fa-handshake"></i></div>
+                <div class="stat-card__value" id="aStatSold">—</div>
+                <div class="stat-card__label" data-i18n="dash.stats_sold">Proprietăți vândute</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--rented">
+                <div class="stat-card__icon"><i class="fa-solid fa-key"></i></div>
+                <div class="stat-card__value" id="aStatRented">—</div>
+                <div class="stat-card__label" data-i18n="dash.stats_rented">Proprietăți închiriate</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--views">
+                <div class="stat-card__icon"><i class="fa-solid fa-calendar-week"></i></div>
+                <div class="stat-card__value" id="aStatViews7d">—</div>
+                <div class="stat-card__label" data-i18n="dash.admin_stats_views_7d">Vizualizări (7 zile)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Global 30-day chart -->
+          <h6 class="stats-section-title mb-3">
+            <i class="fa-solid fa-chart-line me-2"></i>
+            <span data-i18n="dash.admin_stats_chart_title">Vizualizări globale — 30 de zile</span>
+          </h6>
+          <div class="card shadow-sm mb-4">
+            <div class="card-body p-3">
+              <div id="adminStatsNoViews" class="small-muted text-center py-3" style="display:none;" data-i18n="dash.stats_no_views">Nu există date de vizualizare</div>
+              <canvas id="adminViewsChart" height="80" style="display:none;"></canvas>
+            </div>
+          </div>
+
+          <!-- Per-agent table -->
+          <h6 class="stats-section-title mb-3">
+            <i class="fa-solid fa-user-tie me-2"></i>
+            <span data-i18n="dash.admin_stats_section_agents">Per agent</span>
+          </h6>
+          <div class="card shadow-sm mb-4">
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table mb-0" id="adminStatsTable">
+                  <thead>
+                    <tr>
+                      <th data-i18n="dash.admin_stats_agent_col_name">Agent</th>
+                      <th data-i18n="dash.admin_stats_agent_col_props">Proprietăți</th>
+                      <th data-i18n="dash.admin_stats_agent_col_active">Active</th>
+                      <th data-i18n="dash.admin_stats_agent_col_views">Vizualizări</th>
+                      <th data-i18n="dash.admin_stats_agent_col_views7d">7 zile</th>
+                      <th data-i18n="dash.admin_stats_agent_col_views30d">30 zile</th>
+                      <th data-i18n="dash.admin_stats_agent_col_last">Ultima activitate</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminStatsAgentTbody">
+                    <tr><td colspan="7" class="text-center small-muted py-3" data-i18n="dash.admin_stats_no_agents">Nu există agenți.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity log -->
+          <h6 class="stats-section-title mb-3">
+            <i class="fa-solid fa-clock-rotate-left me-2"></i>
+            <span data-i18n="dash.admin_stats_section_logs">Jurnal activitate</span>
+          </h6>
+          <div class="card shadow-sm mb-2">
+            <div class="card-body p-3">
+              <!-- Log filters -->
+              <div class="d-flex flex-wrap gap-2 align-items-center mb-3" id="logFilterBar">
+                <button class="btn btn-sm btn-danger log-filter-btn active" data-filter="all" data-i18n="dash.log_filter_all">Tot timpul</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="today" data-i18n="dash.log_filter_today">Azi</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="yesterday" data-i18n="dash.log_filter_yesterday">Ieri</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="week" data-i18n="dash.log_filter_week">Ultima săptămână</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="period" data-i18n="dash.log_filter_period">Perioadă</button>
+                <div id="logPeriodInputs" class="d-none d-flex gap-2 align-items-center flex-wrap">
+                  <span class="small-muted" data-i18n="dash.log_filter_from">De la</span>
+                  <input type="date" id="logFromDate" class="form-control form-control-sm" style="width:auto;">
+                  <span class="small-muted" data-i18n="dash.log_filter_to">Până la</span>
+                  <input type="date" id="logToDate" class="form-control form-control-sm" style="width:auto;">
+                  <button class="btn btn-sm btn-danger" id="logPeriodApply" data-i18n="dash.log_filter_apply">Aplică</button>
+                </div>
+              </div>
+              <ul class="activity-log-list" id="adminActivityLog">
+                <li class="activity-log-item"><span class="activity-log-text small-muted" data-i18n="dash.admin_stats_logs_empty">Nu există înregistrări recente.</span></li>
+              </ul>
+            </div>
+          </div>
+
+        </div><!-- /adminStatsContent -->
+      </section>
       <section id="view-add" class="d-none">
         <div class="card shadow-sm">
           <div class="card-body p-4">
@@ -1045,8 +1253,9 @@
               </label>
               <div class="features-tags" id="e_featuresTags"></div>
               <div class="feature-search-wrapper">
-                <input id="e_featuresSearch" class="feature-search" type="search" data-i18n="dash.features_search_ph"
+                <input id="e_featuresSearch" class="feature-search" type="text" data-i18n="dash.features_search_ph"
                   data-i18n-attr="placeholder" placeholder="Caută caracteristici..." aria-label="Caută caracteristici">
+                <button id="e_featuresSearchClear" type="button" class="feature-search-clear" aria-label="Șterge căutarea" title="Șterge">✕</button>
               </div>
               <div class="features-multiselect" id="e_featuresMultiselect"></div>
             </div>

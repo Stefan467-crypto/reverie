@@ -539,17 +539,24 @@ async function renderAgentHero() {
     const phone = String(agent.phone || "").trim();
     const email = String(agent.email || "").trim();
     const region = String(agent.region || agent.location || "Cahul").trim() || "Cahul";
+    const regionDisplay = translateLocation(region) || region;
 
     if (heroName) heroName.textContent = agent.name || t("agentPage.fallback_name");
-    if (heroRole) heroRole.textContent = agent.role || t("contact.agent_role");
+    if (heroRole) {
+      const rawRole = String(agent.role || "").trim().toLowerCase();
+      const roleDisplay = (rawRole === "agent" || rawRole === "admin" || !rawRole)
+        ? t("contact.agent_role")
+        : rawRole.charAt(0).toUpperCase() + rawRole.slice(1);
+      heroRole.textContent = roleDisplay;
+    }
     if (heroIntro) heroIntro.textContent = agent.description || t("agentPage.intro");
     if (heroPhone) heroPhone.textContent = phone || t("agentPage.phone_placeholder");
     if (heroEmail) heroEmail.textContent = email || t("agentPage.email_placeholder");
-    if (heroLocation) heroLocation.textContent = region;
+    if (heroLocation) heroLocation.textContent = regionDisplay;
     if (heroPhoto) heroPhoto.style.backgroundImage = `url('${esc(photo)}')`;
     if (statsListings) statsListings.textContent = String(properties.length);
     if (statsExperience) statsExperience.textContent = agent.experience || "15+";
-    if (statsRegion) statsRegion.textContent = region;
+    if (statsRegion) statsRegion.textContent = regionDisplay;
   } catch (err) {
     console.error("Agent hero render error:", err);
   }
@@ -1028,6 +1035,16 @@ async function initPropertyGrid() {
       if (resultsCount) resultsCount.textContent = t("offers.showing", { count: 0 });
       return;
     }
+
+    // Sort newest-first (default "popular" order)
+    function tsToMs(v) {
+      if (!v) return 0;
+      if (typeof v.toMillis === "function") return v.toMillis();
+      if (typeof v.seconds === "number") return v.seconds * 1000;
+      if (typeof v === "number") return v;
+      return 0;
+    }
+    items.sort((a, b) => tsToMs(b.createdAt) - tsToMs(a.createdAt));
 
     grid.innerHTML = "";
     items.forEach(p => grid.appendChild(buildCard(p)));
