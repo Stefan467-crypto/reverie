@@ -171,7 +171,8 @@
     "property_desc": "View the full details of this real estate property.",
     "agent_title": "Agent Listings — Reverie",
     "dashboard_title": "Agent Dashboard — Reverie",
-    "login_title": "Sign In — Reverie"
+    "login_title": "Sign In — Reverie",
+    "chirii_title": "Rentals — Reverie"
   },
   "projects": {
     "kicker": "Partner Projects",
@@ -468,10 +469,12 @@
     "houses": "Houses",
     "lands": "Land Plots",
     "commercial": "Commercial Spaces",
+    "chirii": "Rentals",
     "apartments_desc": "Block apartments, ground-floor units and studios",
     "houses_desc": "Individual houses and semi-detached homes",
     "lands_desc": "Building plots and agricultural land",
     "commercial_desc": "Stores, offices, warehouses and restaurants",
+    "chirii_desc": "Properties available for rent",
     "properties": "{{count}} properties"
   },
   "category_page": {

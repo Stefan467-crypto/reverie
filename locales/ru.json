@@ -154,7 +154,8 @@
     "property_desc": "Просмотрите полные детали этого объекта недвижимости.",
     "agent_title": "Предложения агента — Reverie",
     "dashboard_title": "Панель агента — Reverie",
-    "login_title": "Вход — Reverie"
+    "login_title": "Вход — Reverie",
+    "chirii_title": "Аренда — Reverie"
   },
   "projects": {
     "kicker": "Партнёрские проекты",
@@ -468,10 +469,12 @@
     "houses": "Дома",
     "lands": "Участки",
     "commercial": "Коммерческие помещения",
+    "chirii": "Аренда",
     "apartments_desc": "Квартиры в многоэтажных домах, на первом этаже и студии",
     "houses_desc": "Отдельные дома и полдома",
     "lands_desc": "Участки под строительство и сельскохозяйственные угодья",
     "commercial_desc": "Магазины, офисы, склады и рестораны",
+    "chirii_desc": "Недвижимость, доступная для аренды",
     "properties": "{{count}} объектов"
   },
   "category_page": {

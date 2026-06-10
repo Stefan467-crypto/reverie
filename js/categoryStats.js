@@ -1,10 +1,4 @@
-/**
- * categoryStats.js
- * Fetches all active properties from Firestore and updates
- * the category counter elements on the homepage.
- */
-
-import { normalizeType, normalizeStatus } from "./i18n.js";
+import { normalizeType, normalizeStatus, normalizeTransaction } from "./i18n.js";
 
 const FB_CONFIG = {
   apiKey: "AIzaSyCqXpk1NuWfiq6QjHViK80HLl9zwFVGNGo",
@@ -35,6 +29,8 @@ export async function initCategoryStats() {
     const el = document.getElementById(id);
     if (el) el.textContent = "—";
   });
+  const chiriiEl = document.getElementById("countChirii");
+  if (chiriiEl) chiriiEl.textContent = "—";
 
   try {
     if (_fetched) return;
@@ -52,12 +48,16 @@ export async function initCategoryStats() {
     const snap = await getDocs(collection(db, "properties"));
 
     const counts = { apartment: 0, house: 0, land: 0, commercial: 0 };
+    let chiriiCount = 0;
 
     snap.forEach(doc => {
       const data = doc.data();
 
       const canonical = normalizeType(data.propertyType || "");
       if (canonical in counts) counts[canonical]++;
+
+      const tx = normalizeTransaction(data.transactionType || "sale");
+      if (tx === "rent") chiriiCount++;
     });
 
     // Animate counter update
@@ -67,12 +67,15 @@ export async function initCategoryStats() {
       animateCount(el, counts[type] || 0);
     });
 
+    if (chiriiEl) animateCount(chiriiEl, chiriiCount);
+
   } catch (err) {
     console.warn("[categoryStats] Could not load counts:", err);
     Object.values(COUNT_IDS).forEach(id => {
       const el = document.getElementById(id);
       if (el) el.textContent = "0";
     });
+    if (chiriiEl) chiriiEl.textContent = "0";
   }
 }
 

@@ -1095,6 +1095,14 @@ async function initPropertyGrid() {
       });
     }
 
+    const pageTransaction = document.body.getAttribute("data-page-transaction");
+    if (pageTransaction) {
+      items = items.filter(p => {
+        const tx = normalizeTransaction(p.transactionType || "sale");
+        return tx === pageTransaction;
+      });
+    }
+
     if (!items.length) {
       grid.innerHTML = `
         <div class="col-12 text-center py-5">

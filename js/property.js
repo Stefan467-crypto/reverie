@@ -295,12 +295,16 @@ function rerenderProperty() {
   if (images.length > 0) {
     images.forEach((src, idx) => {
       const wrapper = document.createElement("div");
-      wrapper.style.cssText = "position:relative;width:100%;aspect-ratio:1/1;";
 
       const im = document.createElement("img");
-      im.src = src; im.alt = ""; im.loading = "lazy";
-      im.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:18px;";
+      im.alt = ""; im.loading = "lazy";
+      im.style.cssText = "width:100%;height:100%;object-fit:cover;border-radius:14px;cursor:pointer;";
       im.addEventListener("click", () => showImage(idx));
+
+      // Apply watermark to thumbnail so right-click → open in new tab shows watermarked version
+      compositeWatermark(src).then(dataUrl => {
+        im.src = dataUrl;
+      }).catch(() => { im.src = src; });
 
       const overlay = buildThumbStatusOverlay();
       if (overlay) wrapper.appendChild(overlay);

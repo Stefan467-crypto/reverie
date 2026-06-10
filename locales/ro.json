@@ -154,7 +154,8 @@
     "property_desc": "Vizualizează detaliile complete ale acestei proprietăți imobiliare.",
     "agent_title": "Ofertele agentului — Reverie",
     "dashboard_title": "Panou Agent — Reverie",
-    "login_title": "Autentificare — Reverie"
+    "login_title": "Autentificare — Reverie",
+    "chirii_title": "Chirii — Reverie"
   },
   "projects": {
     "kicker": "Proiecte partener",
@@ -468,10 +469,12 @@
     "houses": "Case",
     "lands": "Terenuri",
     "commercial": "Spații comerciale",
+    "chirii": "Chirii",
     "apartments_desc": "Apartamente în bloc, la sol și studiouri",
     "houses_desc": "Case individuale și jumătăți de casă",
     "lands_desc": "Terenuri pentru construcții și agricole",
     "commercial_desc": "Magazine, birouri, depozite și restaurante",
+    "chirii_desc": "Proprietăți disponibile pentru închiriere",
     "properties": "{{count}} proprietăți"
   },
   "category_page": {
