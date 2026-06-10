@@ -67,15 +67,18 @@ function parseRegionParts(region) {
   return String(region ?? "").split(",").map(x => norm(x)).filter(Boolean);
 }
 
-async function getProjectsFromFirestore() {
+// ── Projects
+
+async function fetchProjectsFromFirestore() {
   try {
     const { fsMod, db } = await getFirebase();
     const { collection, getDocs } = fsMod;
     const snap = await getDocs(collection(db, "projects"));
     const items = [];
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-    return items;
-  } catch {
+    return items.sort((a, b) => (b.createdAt?.seconds ?? b.createdAt ?? 0) - (a.createdAt?.seconds ?? a.createdAt ?? 0));
+  } catch (err) {
+    console.error("fetchProjectsFromFirestore error:", err);
     return [];
   }
 }
@@ -87,11 +90,21 @@ function getProjectTitle(project) {
   return project.titleRo || project.titleEn || project.titleRu || "";
 }
 
-function shouldUseProjectsMarquee(grid) {
-  if (!grid) return false;
-  const container = grid.parentElement;
-  if (!container) return false;
-  return grid.scrollWidth > container.getBoundingClientRect().width + 1;
+function buildProjectCard(project) {
+  const lang = getCurrentLanguage();
+  const locale = lang === "en" ? "en-GB" : lang === "ru" ? "ru-RU" : "ro-RO";
+  const date = project.date ? new Date(project.date).toLocaleDateString(locale) : "";
+  const card = document.createElement("article");
+  card.className = "project-card-wrap";
+  card.innerHTML = `
+    <div class="project-card">
+      <img src="${esc(project.imageUrl || "images/img1.png")}" alt="${esc(getProjectTitle(project))}">
+      <div class="card-body p-3">
+        <h5 class="mb-1">${esc(getProjectTitle(project))}</h5>
+        <div class="project-date">${esc(date)}</div>
+      </div>
+    </div>`;
+  return card;
 }
 
 async function renderProjectsSection() {
@@ -99,67 +112,41 @@ async function renderProjectsSection() {
   const grid = document.getElementById("projectsGrid");
   if (!section || !grid) return;
 
-  const items = (await getProjectsFromFirestore()).sort((a, b) => String(b.createdAt || 0) - String(a.createdAt || 0));
+  const items = await fetchProjectsFromFirestore();
+
   if (!items.length) {
     section.style.display = "none";
+    grid.innerHTML = "";
     grid.classList.remove("projects-grid-row--marquee");
     grid.style.animation = "none";
     return;
   }
 
   section.style.display = "block";
-
   grid.innerHTML = "";
   grid.classList.remove("projects-grid-row--marquee");
   grid.style.animation = "none";
   grid.dataset.dupCount = "0";
 
-  items.forEach(project => {
-    const card = document.createElement("article");
-    card.className = "project-card-wrap";
-    const date = project.date ? new Date(project.date).toLocaleDateString(getCurrentLanguage() === "en" ? "en-GB" : getCurrentLanguage() === "ru" ? "ru-RU" : "ro-RO") : "";
-    card.innerHTML = `
-      <div class="project-card">
-        <img src="${esc(project.imageUrl || "images/img1.png")}" alt="${esc(getProjectTitle(project))}">
-        <div class="card-body p-3">
-          <h5 class="mb-1">${esc(getProjectTitle(project))}</h5>
-          <div class="project-date">${esc(date)}</div>
-        </div>
-      </div>`;
-    grid.appendChild(card);
-  });
+  items.forEach(p => grid.appendChild(buildProjectCard(p)));
 
+  // After paint: decide if marquee is needed
   setTimeout(() => {
-    const needsMarquee = shouldUseProjectsMarquee(grid);
-    if (!needsMarquee) {
-      grid.classList.remove("projects-grid-row--marquee");
-      grid.style.animation = "none";
+    const container = grid.parentElement;
+    const overflows = container ? grid.scrollWidth > container.getBoundingClientRect().width + 1 : false;
+
+    if (!overflows) {
       grid.style.justifyContent = "center";
-      grid.dataset.dupCount = "0";
       return;
     }
 
-    const duplicated = [...items, ...items];
+    // Duplicate items for seamless loop
     grid.innerHTML = "";
     grid.classList.add("projects-grid-row--marquee");
     grid.style.animation = "projects-marquee 24s linear infinite";
     grid.style.justifyContent = "flex-start";
     grid.dataset.dupCount = String(items.length);
-
-    duplicated.forEach(project => {
-      const card = document.createElement("article");
-      card.className = "project-card-wrap";
-      const date = project.date ? new Date(project.date).toLocaleDateString(getCurrentLanguage() === "en" ? "en-GB" : getCurrentLanguage() === "ru" ? "ru-RU" : "ro-RO") : "";
-      card.innerHTML = `
-        <div class="project-card">
-          <img src="${esc(project.imageUrl || "images/img1.png")}" alt="${esc(getProjectTitle(project))}">
-          <div class="card-body p-3">
-            <h5 class="mb-1">${esc(getProjectTitle(project))}</h5>
-            <div class="project-date">${esc(date)}</div>
-          </div>
-        </div>`;
-      grid.appendChild(card);
-    });
+    [...items, ...items].forEach(p => grid.appendChild(buildProjectCard(p)));
   });
 }
 
