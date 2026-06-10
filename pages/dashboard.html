@@ -22,33 +22,103 @@
       color: var(--red-700, #b71c1c);
       opacity: 0.85;
     }
+
     .stat-card {
       background: #fff;
       border-radius: 14px;
       padding: 1rem 1.1rem;
-      box-shadow: 0 1px 6px rgba(0,0,0,.07);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, .07);
       display: flex;
       flex-direction: column;
       gap: 4px;
       border-left: 4px solid transparent;
       height: 100%;
     }
-    .stat-card__icon { font-size: 1.1rem; opacity: .55; }
-    .stat-card__value { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
-    .stat-card__value--sm { font-size: 0.88rem; font-weight: 700; line-height: 1.3; word-break: break-word; }
-    .stat-card__label { font-size: 0.72rem; color: #888; font-weight: 500; }
-    .stat-card--active  { border-left-color: #22c55e; } .stat-card--active  .stat-card__icon { color: #22c55e; }
-    .stat-card--sold    { border-left-color: #ef4444; } .stat-card--sold    .stat-card__icon { color: #ef4444; }
-    .stat-card--rented  { border-left-color: #f59e0b; } .stat-card--rented  .stat-card__icon { color: #f59e0b; }
-    .stat-card--stopped { border-left-color: #94a3b8; } .stat-card--stopped .stat-card__icon { color: #94a3b8; }
-    .stat-card--views   { border-left-color: #6366f1; } .stat-card--views   .stat-card__icon { color: #6366f1; }
-    .stat-card--top     { border-left-color: #f59e0b; } .stat-card--top     .stat-card__icon { color: #f59e0b; }
-    .stat-card--neutral { border-left-color: #cbd5e1; } .stat-card--neutral .stat-card__icon { color: #64748b; }
+
+    .stat-card__icon {
+      font-size: 1.1rem;
+      opacity: .55;
+    }
+
+    .stat-card__value {
+      font-size: 1.6rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .stat-card__value--sm {
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+
+    .stat-card__label {
+      font-size: 0.72rem;
+      color: #888;
+      font-weight: 500;
+    }
+
+    .stat-card--active {
+      border-left-color: #22c55e;
+    }
+
+    .stat-card--active .stat-card__icon {
+      color: #22c55e;
+    }
+
+    .stat-card--sold {
+      border-left-color: #ef4444;
+    }
+
+    .stat-card--sold .stat-card__icon {
+      color: #ef4444;
+    }
+
+    .stat-card--rented {
+      border-left-color: #f59e0b;
+    }
+
+    .stat-card--rented .stat-card__icon {
+      color: #f59e0b;
+    }
+
+    .stat-card--stopped {
+      border-left-color: #94a3b8;
+    }
+
+    .stat-card--stopped .stat-card__icon {
+      color: #94a3b8;
+    }
+
+    .stat-card--views {
+      border-left-color: #6366f1;
+    }
+
+    .stat-card--views .stat-card__icon {
+      color: #6366f1;
+    }
+
+    .stat-card--top {
+      border-left-color: #f59e0b;
+    }
+
+    .stat-card--top .stat-card__icon {
+      color: #f59e0b;
+    }
+
+    .stat-card--neutral {
+      border-left-color: #cbd5e1;
+    }
+
+    .stat-card--neutral .stat-card__icon {
+      color: #64748b;
+    }
   </style>
   <!-- Restore language before render to prevent FOUC -->
-  <script>(function(){try{document.documentElement.lang=localStorage.getItem("reverie_lang")||"ro"}catch(e){}})()</script>
+  <script>(function () { try { document.documentElement.lang = localStorage.getItem("reverie_lang") || "ro" } catch (e) { } })()</script>
 
-  
+
 </head>
 
 <body data-meta-title="meta.dashboard_title">
@@ -86,7 +156,7 @@
         <button class="navbtn" data-view="add">
           <span data-i18n="dash.nav_add">Adaugă proprietate</span>
         </button>
-        
+
         <div id="adminSep" class="small-muted px-1 d-none" style="font-weight:600;opacity:.75;margin-top:10px;"
           data-i18n="dash.nav_admin_sep">Admin</div>
         <button class="navbtn d-none" data-view="all" id="navAllBtn">
@@ -143,7 +213,8 @@
               </div>
               <div class="d-flex gap-2 flex-wrap">
                 <button class="btn btn-danger btn-sm" id="goAddBtn" data-i18n="dash.btn_add_now">Adaugă acum</button>
-                <button class="btn btn-outline-secondary btn-sm" id="goMyBtn" data-i18n="dash.btn_view_list">Vezi lista</button>
+                <button class="btn btn-outline-secondary btn-sm" id="goMyBtn" data-i18n="dash.btn_view_list">Vezi
+                  lista</button>
               </div>
             </div>
             <div id="homeMsg" class="small-muted mt-3"></div>
@@ -151,7 +222,8 @@
         </div>
 
         <!-- Stats loading indicator -->
-        <div id="statsLoading" class="small-muted mb-3" data-i18n="dash.stats_loading">Se calculează statisticile...</div>
+        <div id="statsLoading" class="small-muted mb-3" data-i18n="dash.stats_loading">Se calculează statisticile...
+        </div>
 
         <div id="statsContent" style="display:none;">
 
@@ -263,7 +335,8 @@
           </h6>
           <div class="card shadow-sm mb-2">
             <div class="card-body p-3">
-              <div id="statsNoViews" class="small-muted text-center py-3" style="display:none;" data-i18n="dash.stats_no_views">Nu există date de vizualizare</div>
+              <div id="statsNoViews" class="small-muted text-center py-3" style="display:none;"
+                data-i18n="dash.stats_no_views">Nu există date de vizualizare</div>
               <canvas id="viewsChart" height="90" style="display:none;"></canvas>
             </div>
           </div>
@@ -301,7 +374,7 @@
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
               <div>
                 <h2 class="h5 mb-1" data-i18n="dash.projects_title">Proiecte</h2>
-                
+
               </div>
             </div>
 
@@ -309,15 +382,18 @@
               <input id="projectId" type="hidden">
               <div class="col-12 col-md-4">
                 <label class="form-label" data-i18n="dash.projects_title_ro">Titlu RO</label>
-                <input id="projectTitleRo" class="form-control" data-i18n-attr="placeholder" data-i18n="dash.projects_ro_ph" placeholder="Titlu în română" required>
+                <input id="projectTitleRo" class="form-control" data-i18n-attr="placeholder"
+                  data-i18n="dash.projects_ro_ph" placeholder="Titlu în română" required>
               </div>
               <div class="col-12 col-md-4">
                 <label class="form-label" data-i18n="dash.projects_title_en">Titlu EN</label>
-                <input id="projectTitleEn" class="form-control" data-i18n-attr="placeholder" data-i18n="dash.projects_en_ph" placeholder="Title in English" required>
+                <input id="projectTitleEn" class="form-control" data-i18n-attr="placeholder"
+                  data-i18n="dash.projects_en_ph" placeholder="Title in English" required>
               </div>
               <div class="col-12 col-md-4">
                 <label class="form-label" data-i18n="dash.projects_title_ru">Titlu RU</label>
-                <input id="projectTitleRu" class="form-control" data-i18n-attr="placeholder" data-i18n="dash.projects_ru_ph" placeholder="Название на русском" required>
+                <input id="projectTitleRu" class="form-control" data-i18n-attr="placeholder"
+                  data-i18n="dash.projects_ru_ph" placeholder="Название на русском" required>
               </div>
               <div class="col-12 col-md-6">
                 <label class="form-label" data-i18n="dash.projects_date">Dată</label>
@@ -331,10 +407,14 @@
                 <div id="projectPhotoPreview" class="project-photo-preview"></div>
               </div>
               <div class="col-12 d-flex gap-2">
-                <button type="submit" id="projectSubmitBtn" class="btn btn-danger" data-i18n="dash.projects_add_btn">Adaugă proiect</button>
-                <button id="projectResetBtn" type="button" class="btn btn-outline-secondary" data-i18n="dash.reset_btn">Resetare</button>
+                <button type="submit" id="projectSubmitBtn" class="btn btn-danger"
+                  data-i18n="dash.projects_add_btn">Adaugă proiect</button>
+                <button id="projectResetBtn" type="button" class="btn btn-outline-secondary"
+                  data-i18n="dash.reset_btn">Resetare</button>
               </div>
-              <div class="col-12"><div id="projectMsg" class="small-muted"></div></div>
+              <div class="col-12">
+                <div id="projectMsg" class="small-muted"></div>
+              </div>
             </form>
 
             <hr class="my-4">
@@ -523,8 +603,9 @@
                   <option value="Oficiu" data-i18n="dash.prop_type_oficiu">Oficiu</option>
                   <option value="Magazin" data-i18n="dash.prop_type_magazin">Magazin</option>
                   <option value="Depozit" data-i18n="dash.prop_type_depozit">Depozit</option>
-                  <option value="Terenuri" data-i18n="dash.prop_type_terenuri">Terenuri</option>
-                  <option value="Teren pentru construcții" data-i18n="dash.prop_type_teren_constructii">Teren pentru construcții</option>
+                  <option value="Teren" data-i18n="dash.prop_type_terenuri">Teren</option>
+                  <option value="Teren pentru construcții" data-i18n="dash.prop_type_teren_constructii">Teren pentru
+                    construcții</option>
                   <option value="Teren Agricol" data-i18n="dash.prop_type_teren_agricol">Teren Agricol</option>
                   <option value="Garaj" data-i18n="dash.prop_type_garaj">Garaj</option>
                 </select>
@@ -791,8 +872,9 @@
                 <option value="Oficiu" data-i18n="dash.prop_type_oficiu">Oficiu</option>
                 <option value="Magazin" data-i18n="dash.prop_type_magazin">Magazin</option>
                 <option value="Depozit" data-i18n="dash.prop_type_depozit">Depozit</option>
-                <option value="Lot de Pământ" data-i18n="dash.prop_type_terenuri">Lot de Pământ</option>
-                <option value="Teren pentru construcții" data-i18n="dash.prop_type_teren_constructii">Teren pentru construcții</option>
+                <option value="Teren" data-i18n="dash.prop_type_terenuri">Teren</option>
+                <option value="Teren pentru construcții" data-i18n="dash.prop_type_teren_constructii">Teren pentru
+                  construcții</option>
                 <option value="Teren Agricol" data-i18n="dash.prop_type_teren_agricol">Teren Agricol</option>
                 <option value="Garaj" data-i18n="dash.prop_type_garaj">Garaj</option>
               </select>
@@ -947,7 +1029,7 @@
               <div class="features-tags" id="e_featuresTags"></div>
               <div class="feature-search-wrapper">
                 <input id="e_featuresSearch" class="feature-search" type="search" data-i18n="dash.features_search_ph"
-                  data-i18n-attr="placeholder" placeholder="Caută caracteristici..." aria-label="Caută caracteristici">  
+                  data-i18n-attr="placeholder" placeholder="Caută caracteristici..." aria-label="Caută caracteristici">
               </div>
               <div class="features-multiselect" id="e_featuresMultiselect"></div>
             </div>
@@ -1017,8 +1099,10 @@
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="dash.close_btn">Închide</button>
-          <button type="submit" form="projectEditForm" class="btn btn-danger" data-i18n="dash.projects_save_btn">Salvează proiectul</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+            data-i18n="dash.close_btn">Închide</button>
+          <button type="submit" form="projectEditForm" class="btn btn-danger"
+            data-i18n="dash.projects_save_btn">Salvează proiectul</button>
         </div>
       </div>
     </div>

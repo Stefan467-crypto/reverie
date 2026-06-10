@@ -78,15 +78,14 @@ function setSelectValue(select, value) {
   if (!select) return;
   const norm = String(value ?? "").trim();
 
-  const opt = Array.from(select.options).find(o => o.value.trim() === norm);
-  select.value = opt ? opt.value : "";
-
-
   const ci = window.choicesInstances?.get(select);
   if (ci) {
     try { ci.destroy(); } catch { }
     window.choicesInstances.delete(select);
   }
+
+  const opt = Array.from(select.options).find(o => o.value.trim() === norm);
+  select.value = opt ? opt.value : "";
 
   if (select.id === "e_region" || select.id === "region") {
     select.querySelectorAll("option[value]").forEach(o => {
