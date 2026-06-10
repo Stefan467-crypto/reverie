@@ -322,7 +322,7 @@
     "bathrooms_label": "Санузел",
     "floor_label": "Этаж",
     "total_floors_label": "Всего этажей",
-    "ceiling_label": "Высота потолков (м)",
+    "ceiling_label": "Высота потолков (см)",
     "kitchen_label": "Площадь кухни (м²)",
     "balconies_label": "Балконы",
     "garages_label": "Гаражи",

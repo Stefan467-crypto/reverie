@@ -322,7 +322,7 @@
     "bathrooms_label": "Bathroom",
     "floor_label": "Floor",
     "total_floors_label": "Total Floors",
-    "ceiling_label": "Ceiling Height (m)",
+    "ceiling_label": "Ceiling Height (cm)",
     "kitchen_label": "Kitchen Area (m²)",
     "balconies_label": "Balconies",
     "garages_label": "Garages",
