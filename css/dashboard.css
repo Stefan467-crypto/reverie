@@ -543,7 +543,9 @@
 
     .prop-card[data-status="stopped"] .prop-status-overlay,
     .prop-card[data-status="sold"] .prop-status-overlay,
-    .prop-card[data-status="rented"] .prop-status-overlay {
+    .prop-card[data-status="rented"] .prop-status-overlay,
+    .prop-card[data-status="bronat"] .prop-status-overlay,
+    .prop-card[data-status="reserved"] .prop-status-overlay {
       display: flex;
     }
 

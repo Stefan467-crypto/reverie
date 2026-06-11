@@ -130,7 +130,8 @@
     "transaction_sale": "Продажа",
     "status_stopped": "ПРИОСТАНОВЛЕНО",
     "status_rented": "АРЕНДОВАНО",
-    "status_sold": "ПРОДАНО"
+    "status_sold": "ПРОДАНО",
+    "status_bronat": "ЗАБРОНИРОВАНО"
   },
   "rooms": {
     "one": "{{n}} комната",
@@ -141,7 +142,8 @@
     "active": "",
     "stopped": "ПРИОСТАНОВЛЕНО",
     "sold": "ПРОДАНО",
-    "rented": "АРЕНДОВАНО"
+    "rented": "АРЕНДОВАНО",
+    "bronat": "ЗАБРОНИРОВАНО"
   },
   "transaction": {
     "rent": "Аренда",
@@ -502,7 +504,10 @@
     "stats_active_badge": "Активные",
     "stats_sold_badge": "Проданные",
     "stats_rented_badge": "В аренде",
-    "stats_stopped_badge": "Остановлено"
+    "stats_stopped_badge": "Остановлено",
+    "status_bronat": "Забронировано",
+    "stats_bronat": "Забронированные объекты",
+    "stats_bronat_badge": "Забронировано"
   },
   "categories": {
     "title": "Категории недвижимости",

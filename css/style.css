@@ -1097,7 +1097,9 @@ a:focus:not(:focus-visible) {
 
 .apartments-section .apart-card[data-status="sold"] .prop-status-overlay,
 .apartments-section .apart-card[data-status="rented"] .prop-status-overlay,
-.apartments-section .apart-card[data-status="stopped"] .prop-status-overlay {
+.apartments-section .apart-card[data-status="stopped"] .prop-status-overlay,
+.apartments-section .apart-card[data-status="bronat"] .prop-status-overlay,
+.apartments-section .apart-card[data-status="reserved"] .prop-status-overlay {
     display: flex !important;
 }
 

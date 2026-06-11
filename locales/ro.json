@@ -130,7 +130,8 @@
     "transaction_sale": "Vânzare",
     "status_stopped": "STOPAT",
     "status_rented": "ÎNCHIRIAT",
-    "status_sold": "VÂNDUT"
+    "status_sold": "VÂNDUT",
+    "status_bronat": "BRONAT"
   },
   "rooms": {
     "one": "{{n}} cameră",
@@ -141,7 +142,8 @@
     "active": "",
     "stopped": "STOPAT",
     "sold": "VÂNDUT",
-    "rented": "ÎNCHIRIAT"
+    "rented": "ÎNCHIRIAT",
+    "bronat": "BRONAT"
   },
   "transaction": {
     "rent": "Chirie",
@@ -502,7 +504,10 @@
     "stats_active_badge": "Active",
     "stats_sold_badge": "Vândute",
     "stats_rented_badge": "Închiriate",
-    "stats_stopped_badge": "Stopate"
+    "stats_stopped_badge": "Stopate",
+    "status_bronat": "Bronat",
+    "stats_bronat": "Proprietăți bronate",
+    "stats_bronat_badge": "Bronate"
   },
   "categories": {
     "title": "Categorii de proprietăți",

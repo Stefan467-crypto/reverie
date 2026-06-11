@@ -27,11 +27,12 @@
       background: #fff;
       border-radius: 10px;
       padding: 1rem 1.1rem;
-      box-shadow: 0 0 0 1px #f1f5f9, 0 1px 3px rgba(0,0,0,.04);
+      box-shadow: 0 0 0 1px #f1f5f9, 0 1px 3px rgba(0, 0, 0, .04);
       display: flex;
       flex-direction: column;
       height: 100%;
     }
+
     .stat-card__value {
       font-size: 1.75rem;
       font-weight: 800;
@@ -40,6 +41,7 @@
       letter-spacing: -0.03em;
       margin-bottom: 4px;
     }
+
     .stat-card__value--sm {
       font-size: 0.8rem;
       font-weight: 600;
@@ -48,16 +50,19 @@
       word-break: break-word;
       margin-bottom: 4px;
     }
+
     .stat-card__label {
       font-size: 0.69rem;
       color: #000000;
       font-weight: 500;
     }
+
     .stat-card__icon {
       font-size: 0.85rem;
       color: #000000;
       margin-left: auto;
     }
+
     .stat-card__badge {
       display: inline-block;
       font-size: 0.6rem;
@@ -72,8 +77,12 @@
       border: 1px solid #f1f5f9;
       width: fit-content;
     }
-    
-    .stat-row { display:flex; align-items:flex-start; justify-content:space-between; }
+
+    .stat-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
 
     /* ── Admin stats table ──────────────────────────────────── */
     #adminStatsTable th {
@@ -87,6 +96,7 @@
       white-space: nowrap;
       background: #fafafa;
     }
+
     #adminStatsTable td {
       font-size: 0.81rem;
       padding: 0.55rem 0.75rem;
@@ -94,64 +104,223 @@
       border-bottom: 1px solid #f8fafc;
       color: #334155;
     }
-    #adminStatsTable tr:last-child td { border-bottom: none; }
-    #adminStatsTable tr:hover td { background: #fafafa; }
-    .agent-name-cell { font-weight: 600; color: #9a1515; }
-    .agent-photo-sm { width:28px;height:28px;border-radius:7px;object-fit:cover;border:1px solid #f1f5f9; }
-    .agent-avatar-sm { width:28px;height:28px;border-radius:7px;background:#f8fafc;display:inline-flex;align-items:center;justify-content:center;font-size:0.68rem;font-weight:700;color:#94a3b8;border:1px solid #f1f5f9; }
+
+    #adminStatsTable tr:last-child td {
+      border-bottom: none;
+    }
+
+    #adminStatsTable tr:hover td {
+      background: #fafafa;
+    }
+
+    .agent-name-cell {
+      font-weight: 600;
+      color: #9a1515;
+    }
+
+    .agent-photo-sm {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      object-fit: cover;
+      border: 1px solid #f1f5f9;
+    }
+
+    .agent-avatar-sm {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background: #f8fafc;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #94a3b8;
+      border: 1px solid #f1f5f9;
+    }
 
     /* ── Activity log ───────────────────────────────────────── */
-    .activity-log-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; }
-    .activity-log-item { display:flex; align-items:flex-start; gap:10px; padding:0.5rem 0.4rem; border-radius:6px; font-size:0.77rem; }
-    .activity-log-item:hover { background:#fafafa; }
-    .activity-log-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:5px; }
-    .activity-log-dot--add  { background:#86efac; }
-    .activity-log-dot--edit { background:#334155; }
-    .activity-log-time { color:#334155; white-space:nowrap; flex-shrink:0; font-size:0.72rem; }
-    .activity-log-text { color:#334155; flex:1; }
-    .activity-log-agent { color:#334155; }
+    .activity-log-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .activity-log-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 0.5rem 0.4rem;
+      border-radius: 6px;
+      font-size: 0.77rem;
+    }
+
+    .activity-log-item:hover {
+      background: #fafafa;
+    }
+
+    .activity-log-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+
+    .activity-log-dot--add {
+      background: #86efac;
+    }
+
+    .activity-log-dot--edit {
+      background: #334155;
+    }
+
+    .activity-log-time {
+      color: #334155;
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.72rem;
+    }
+
+    .activity-log-text {
+      color: #334155;
+      flex: 1;
+    }
+
+    .activity-log-agent {
+      color: #334155;
+    }
 
     /* ── Log filter pills ───────────────────────────────────── */
-    .log-filter-btn { border-radius:20px; font-size:0.7rem; font-weight:600; padding:3px 12px; }
-    .log-filter-btn.active { background:#9a1515; border-color:#9a1515; color:#fff; }
-    .log-filter-btn:not(.active) { border-color:#e2e8f0; color:#b71c1c; background:#fff; }
-    .log-filter-btn:not(.active):hover { background:#f8fafc; color:#9a1515; }
+    .log-filter-btn {
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 12px;
+    }
+
+    .log-filter-btn.active {
+      background: #9a1515;
+      border-color: #9a1515;
+      color: #fff;
+    }
+
+    .log-filter-btn:not(.active) {
+      border-color: #e2e8f0;
+      color: #b71c1c;
+      background: #fff;
+    }
+
+    .log-filter-btn:not(.active):hover {
+      background: #f8fafc;
+      color: #9a1515;
+    }
 
     /* ── Agent custom dropdown ──────────────────────────────── */
-    .agent-dd { position:relative; }
+    .agent-dd {
+      position: relative;
+    }
+
     .agent-dd__trigger {
-      display:flex; align-items:center; justify-content:space-between;
-      gap:10px; padding:9px 13px;
-      border:1px solid #e2e8f0; border-radius:10px;
-      background:#fff; cursor:pointer;
-      transition:border-color .15s, box-shadow .15s;
-      user-select:none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 13px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      user-select: none;
     }
-    .agent-dd__trigger:hover { border-color:#cbd5e1; }
+
+    .agent-dd__trigger:hover {
+      border-color: #cbd5e1;
+    }
+
     .agent-dd__trigger:focus-within,
-    .agent-dd--open .agent-dd__trigger { border-color:#94a3b8; box-shadow:0 0 0 3px rgba(15,23,42,.05); }
-    .agent-dd__selected { display:flex; align-items:center; gap:9px; font-size:0.84rem; font-weight:500; color:#1e293b; }
-    .agent-dd__name { line-height:1; }
-    .agent-dd__arrow { color:#94a3b8; flex-shrink:0; transition:transform .18s; }
-    .agent-dd__arrow--open { transform:rotate(180deg); }
+    .agent-dd--open .agent-dd__trigger {
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, .05);
+    }
+
+    .agent-dd__selected {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      color: #1e293b;
+    }
+
+    .agent-dd__name {
+      line-height: 1;
+    }
+
+    .agent-dd__arrow {
+      color: #94a3b8;
+      flex-shrink: 0;
+      transition: transform .18s;
+    }
+
+    .agent-dd__arrow--open {
+      transform: rotate(180deg);
+    }
+
     .agent-dd__list {
-      position:absolute; top:calc(100% + 5px); left:0; right:0; z-index:200;
-      background:#fff; border:1px solid #e2e8f0; border-radius:10px;
-      box-shadow:0 4px 16px rgba(0,0,0,.08);
-      overflow:hidden;
+      position: absolute;
+      top: calc(100% + 5px);
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .08);
+      overflow: hidden;
     }
+
     .agent-dd__option {
-      display:flex; align-items:center; gap:10px;
-      padding:9px 13px; font-size:0.83rem; color:#334155;
-      cursor:pointer; transition:background .1s;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 13px;
+      font-size: 0.83rem;
+      color: #334155;
+      cursor: pointer;
+      transition: background .1s;
     }
-    .agent-dd__option:hover { background:#f8fafc; }
-    .agent-dd__option--active { background:#f8fafc; font-weight:600; color:#0f172a; }
-    .agent-dd__option--active::after { content:"✓"; margin-left:auto; font-size:0.75rem; color:#94a3b8; }
+
+    .agent-dd__option:hover {
+      background: #f8fafc;
+    }
+
+    .agent-dd__option--active {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    .agent-dd__option--active::after {
+      content: "✓";
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: #94a3b8;
+    }
 
     /* ── Transfer card ──────────────────────────────────────── */
-    .transfer-card { border-radius:12px; border:1px solid #f1f5f9 !important; }
-    .transfer-card .card-body { padding:1.1rem 1.2rem; }
+    .transfer-card {
+      border-radius: 12px;
+      border: 1px solid #f1f5f9 !important;
+    }
+
+    .transfer-card .card-body {
+      padding: 1.1rem 1.2rem;
+    }
   </style>
   <!-- Restore language before render to prevent FOUC -->
   <script>(function () { try { document.documentElement.lang = localStorage.getItem("reverie_lang") || "ro" } catch (e) { } })()</script>
@@ -312,6 +481,16 @@
                   <div class="stat-card__icon"><i class="fa-solid fa-circle-pause"></i></div>
                 </div>
                 <div class="stat-card__label" data-i18n="dash.stats_stopped">Proprietăți stopate</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--bronat">
+                <div class="stat-card__badge" data-i18n="dash.stats_bronat_badge">Bronate</div>
+                <div class="stat-row">
+                  <div class="stat-card__value" id="statBronat">—</div>
+                  <div class="stat-card__icon"><i class="fa-solid fa-bookmark"></i></div>
+                </div>
+                <div class="stat-card__label" data-i18n="dash.stats_bronat">Proprietăți bronate</div>
               </div>
             </div>
           </div>
@@ -566,11 +745,13 @@
                     </h6>
                     <div class="row g-2">
                       <div class="col-12">
-                        <label class="form-label small fw-semibold text-muted mb-1" data-i18n="dash.transfer_from_label">De la</label>
+                        <label class="form-label small fw-semibold text-muted mb-1"
+                          data-i18n="dash.transfer_from_label">De la</label>
                         <select id="tr_from" class="form-select transfer-select"></select>
                       </div>
                       <div class="col-12">
-                        <label class="form-label small fw-semibold text-muted mb-1" data-i18n="dash.transfer_to_label">Către</label>
+                        <label class="form-label small fw-semibold text-muted mb-1"
+                          data-i18n="dash.transfer_to_label">Către</label>
                         <select id="tr_to" class="form-select transfer-select"></select>
                       </div>
                       <div class="col-12 d-flex gap-2 mt-1">
@@ -623,7 +804,8 @@
           <i class="fa-solid fa-globe me-2"></i>
           <span data-i18n="dash.admin_stats_section_platform">Platformă</span>
         </h6>
-        <div id="adminStatsLoading" class="small-muted mb-3" data-i18n="dash.admin_stats_loading">Se încarcă statisticile...</div>
+        <div id="adminStatsLoading" class="small-muted mb-3" data-i18n="dash.admin_stats_loading">Se încarcă
+          statisticile...</div>
         <div id="adminStatsContent" style="display:none;">
           <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
@@ -676,6 +858,13 @@
               </div>
             </div>
             <div class="col-6 col-md-3">
+              <div class="stat-card stat-card--bronat">
+                <div class="stat-card__icon"><i class="fa-solid fa-bookmark"></i></div>
+                <div class="stat-card__value" id="aStatBronat">—</div>
+                <div class="stat-card__label" data-i18n="dash.stats_bronat">Proprietăți bronate</div>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
               <div class="stat-card stat-card--views">
                 <div class="stat-card__icon"><i class="fa-solid fa-calendar-week"></i></div>
                 <div class="stat-card__value" id="aStatViews7d">—</div>
@@ -691,7 +880,8 @@
           </h6>
           <div class="card shadow-sm mb-4">
             <div class="card-body p-3">
-              <div id="adminStatsNoViews" class="small-muted text-center py-3" style="display:none;" data-i18n="dash.stats_no_views">Nu există date de vizualizare</div>
+              <div id="adminStatsNoViews" class="small-muted text-center py-3" style="display:none;"
+                data-i18n="dash.stats_no_views">Nu există date de vizualizare</div>
               <canvas id="adminViewsChart" height="80" style="display:none;"></canvas>
             </div>
           </div>
@@ -717,7 +907,10 @@
                     </tr>
                   </thead>
                   <tbody id="adminStatsAgentTbody">
-                    <tr><td colspan="7" class="text-center small-muted py-3" data-i18n="dash.admin_stats_no_agents">Nu există agenți.</td></tr>
+                    <tr>
+                      <td colspan="7" class="text-center small-muted py-3" data-i18n="dash.admin_stats_no_agents">Nu
+                        există agenți.</td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -733,21 +926,28 @@
             <div class="card-body p-3">
               <!-- Log filters -->
               <div class="d-flex flex-wrap gap-2 align-items-center mb-3" id="logFilterBar">
-                <button class="btn btn-sm btn-danger log-filter-btn active" data-filter="all" data-i18n="dash.log_filter_all">Tot timpul</button>
-                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="today" data-i18n="dash.log_filter_today">Azi</button>
-                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="yesterday" data-i18n="dash.log_filter_yesterday">Ieri</button>
-                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="week" data-i18n="dash.log_filter_week">Ultima săptămână</button>
-                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="period" data-i18n="dash.log_filter_period">Perioadă</button>
+                <button class="btn btn-sm btn-danger log-filter-btn active" data-filter="all"
+                  data-i18n="dash.log_filter_all">Tot timpul</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="today"
+                  data-i18n="dash.log_filter_today">Azi</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="yesterday"
+                  data-i18n="dash.log_filter_yesterday">Ieri</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="week"
+                  data-i18n="dash.log_filter_week">Ultima săptămână</button>
+                <button class="btn btn-sm btn-outline-secondary log-filter-btn" data-filter="period"
+                  data-i18n="dash.log_filter_period">Perioadă</button>
                 <div id="logPeriodInputs" class="d-none d-flex gap-2 align-items-center flex-wrap">
                   <span class="small-muted" data-i18n="dash.log_filter_from">De la</span>
                   <input type="date" id="logFromDate" class="form-control form-control-sm" style="width:auto;">
                   <span class="small-muted" data-i18n="dash.log_filter_to">Până la</span>
                   <input type="date" id="logToDate" class="form-control form-control-sm" style="width:auto;">
-                  <button class="btn btn-sm btn-danger" id="logPeriodApply" data-i18n="dash.log_filter_apply">Aplică</button>
+                  <button class="btn btn-sm btn-danger" id="logPeriodApply"
+                    data-i18n="dash.log_filter_apply">Aplică</button>
                 </div>
               </div>
               <ul class="activity-log-list" id="adminActivityLog">
-                <li class="activity-log-item"><span class="activity-log-text small-muted" data-i18n="dash.admin_stats_logs_empty">Nu există înregistrări recente.</span></li>
+                <li class="activity-log-item"><span class="activity-log-text small-muted"
+                    data-i18n="dash.admin_stats_logs_empty">Nu există înregistrări recente.</span></li>
               </ul>
             </div>
           </div>
@@ -1053,6 +1253,8 @@
                   data-i18n="dash.status_sold">Vândut</button>
                 <button type="button" class="btn btn-outline-warning" data-status="rented"
                   data-i18n="dash.status_rented">Închiriat</button>
+                <button type="button" class="btn btn-outline-info" data-status="bronat"
+                  data-i18n="dash.status_bronat">Bronat</button>
               </div>
             </div>
 
@@ -1257,7 +1459,8 @@
               <div class="feature-search-wrapper">
                 <input id="e_featuresSearch" class="feature-search" type="text" data-i18n="dash.features_search_ph"
                   data-i18n-attr="placeholder" placeholder="Caută caracteristici..." aria-label="Caută caracteristici">
-                <button id="e_featuresSearchClear" type="button" class="feature-search-clear" aria-label="Șterge căutarea" title="Șterge">✕</button>
+                <button id="e_featuresSearchClear" type="button" class="feature-search-clear"
+                  aria-label="Șterge căutarea" title="Șterge">✕</button>
               </div>
               <div class="features-multiselect" id="e_featuresMultiselect"></div>
             </div>

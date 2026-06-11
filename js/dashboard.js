@@ -135,6 +135,8 @@ function statusBadgeClass(s) {
   if (s === "stopped") return "text-bg-secondary";
   if (s === "sold") return "text-bg-danger";
   if (s === "rented") return "text-bg-warning";
+  if (s === "bronat") return "text-bg-info";
+  if (s === "reserved") return "text-bg-warning";
   return "text-bg-success";
 }
 
@@ -862,19 +864,21 @@ async function loadStats() {
     snap.forEach(d => items.push({ id: d.id, ...d.data() }));
 
     // ── Personal stats
-    const counts = { active: 0, sold: 0, rented: 0, stopped: 0 };
+    const counts = { active: 0, sold: 0, rented: 0, stopped: 0, bronat: 0 };
     items.forEach(p => {
       const s = normalizeStatus(p.status || p.state || p.availability || "active");
       if (s === "active")  counts.active++;
       else if (s === "sold")    counts.sold++;
       else if (s === "rented")  counts.rented++;
       else if (s === "stopped") counts.stopped++;
+      else if (s === "bronat")  counts.bronat++;
     });
     const el = id => document.getElementById(id);
     if (el("statActive"))  el("statActive").textContent  = counts.active;
     if (el("statSold"))    el("statSold").textContent    = counts.sold;
     if (el("statRented"))  el("statRented").textContent  = counts.rented;
     if (el("statStopped")) el("statStopped").textContent = counts.stopped;
+    if (el("statBronat"))  el("statBronat").textContent  = counts.bronat;
 
     // ── Views stats (from viewCount / viewLog fields on each property doc)
     const now = Date.now();
@@ -1049,7 +1053,7 @@ async function loadAdminStats() {
 
     // Platform totals
     let totalViews = 0, views7d = 0, addedMonth = 0;
-    let pActive = 0, pSold = 0, pRented = 0;
+    let pActive = 0, pSold = 0, pRented = 0, pBronat = 0;
     const buckets = {};
     for (let i = 29; i >= 0; i--) {
       const d = new Date(now - i * 24 * 60 * 60 * 1000);
@@ -1068,6 +1072,7 @@ async function loadAdminStats() {
       if (s === "active") pActive++;
       else if (s === "sold") pSold++;
       else if (s === "rented") pRented++;
+      else if (s === "bronat") pBronat++;
 
       // Log: created
       if (created) logEntries.push({ ts: created, type: "add", agentId: p.agentId, title: p.title || p.code || "—" });
@@ -1096,6 +1101,7 @@ async function loadAdminStats() {
     if (el("aStatActive")) el("aStatActive").textContent = pActive;
     if (el("aStatSold")) el("aStatSold").textContent = pSold;
     if (el("aStatRented")) el("aStatRented").textContent = pRented;
+    if (el("aStatBronat")) el("aStatBronat").textContent = pBronat;
     if (el("aStatViews7d")) el("aStatViews7d").textContent = views7d;
 
     // ── Global chart
@@ -1415,8 +1421,8 @@ function setEditStatusUI(status) {
   e_statusButtons.forEach(btn => {
     const st = btn.getAttribute("data-status");
     const isOn = st === selectedEditStatus;
-    const outlineClass = st === "active" ? "btn-outline-success" : st === "stopped" ? "btn-outline-secondary" : st === "sold" ? "btn-outline-danger" : "btn-outline-warning";
-    const solidClass = st === "active" ? "btn-success" : st === "stopped" ? "btn-secondary" : st === "sold" ? "btn-danger" : "btn-warning";
+    const outlineClass = st === "active" ? "btn-outline-success" : st === "stopped" ? "btn-outline-secondary" : st === "sold" ? "btn-outline-danger" : st === "bronat" ? "btn-outline-info" : "btn-outline-warning";
+    const solidClass = st === "active" ? "btn-success" : st === "stopped" ? "btn-secondary" : st === "sold" ? "btn-danger" : st === "bronat" ? "btn-info" : "btn-warning";
     btn.className = `btn ${isOn ? solidClass : outlineClass}`;
     btn.setAttribute("aria-pressed", isOn ? "true" : "false");
   });
@@ -1430,7 +1436,7 @@ e_statusButtons.forEach(btn => {
 function refreshStatusButtonLabels() {
   e_statusButtons.forEach(btn => {
     const st = btn.getAttribute("data-status");
-    const keyMap = { active: "dash.status_active", stopped: "dash.status_stopped", sold: "dash.status_sold", rented: "dash.status_rented" };
+    const keyMap = { active: "dash.status_active", stopped: "dash.status_stopped", sold: "dash.status_sold", rented: "dash.status_rented", bronat: "dash.status_bronat", reserved: "dash.status_reserved" };
     if (keyMap[st]) btn.textContent = t(keyMap[st]);
   });
 }

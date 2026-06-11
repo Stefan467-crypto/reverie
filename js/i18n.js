@@ -136,6 +136,7 @@ export function normalizeStatus(raw) {
   if (["stopped", "stopat", "paused", "inactive"].includes(v)) return "stopped";
   if (["rented", "inchiriat", "rent"].includes(v)) return "rented";
   if (["sold", "vandut", "vândut"].includes(v)) return "sold";
+  if (["bronat", "reserved", "rezervat"].includes(v)) return "bronat";
   return "active";
 }
 

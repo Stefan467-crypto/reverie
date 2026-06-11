@@ -150,7 +150,8 @@
     "transaction_sale": "Sale",
     "status_stopped": "PAUSED",
     "status_rented": "RENTED",
-    "status_sold": "SOLD"
+    "status_sold": "SOLD",
+    "status_bronat": "RESERVED"
   },
   "rooms": {
     "one": "{{n}} room",
@@ -161,7 +162,8 @@
     "active": "",
     "stopped": "PAUSED",
     "sold": "SOLD",
-    "rented": "RENTED"
+    "rented": "RENTED",
+    "bronat": "RESERVED"
   },
   "transaction": {
     "rent": "Rent",
@@ -502,7 +504,10 @@
     "stats_active_badge": "Active",
     "stats_sold_badge": "Sold",
     "stats_rented_badge": "Rented",
-    "stats_stopped_badge": "Stopped"
+    "stats_stopped_badge": "Stopped",
+    "status_bronat": "Reserved",
+    "stats_bronat": "Reserved properties",
+    "stats_bronat_badge": "Reserved"
   },
   "categories": {
     "title": "Property Categories",
