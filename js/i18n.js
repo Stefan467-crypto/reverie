@@ -355,6 +355,7 @@ const LOCATION_MAP = {
   "Andrușul de Sus": { ro: "Andrușul de Sus", ru: "Андрушул де Сус", en: "Andrușul de Sus" },
   "Albota de Jos": { ro: "Albota de Jos", ru: "Альбота де Жос", en: "Albota de Jos" },
   "Albota de Sus": { ro: "Albota de Sus", ru: "Альбота де Сус", en: "Albota de Sus" },
+  "Cania": { ro: "Cania", ru: "Кания", en: "Cania" },
   "Cahul": { ro: "Cahul", ru: "Кагул", en: "Cahul" },
   "Centru-Policlinica": { ro: "Centru-Policlinica", ru: "Центр-Поликлиника", en: "Center-Polyclinic" },
   "Focșa": { ro: "Focșa", ru: "Фокша", en: "Focșa" },
