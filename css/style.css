@@ -2008,23 +2008,102 @@ a:focus:not(:focus-visible) {
     font-size: 0.85rem;
 }
 
-.toggle-all-btn {
-    padding: 0.8rem 1.6rem;
-    border-radius: 999px;
-    font-weight: 800;
-    transition: all 0.28s var(--bounce);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    box-shadow: 0 12px 32px rgba(183, 28, 28, 0.12);
+/* ── Pagination ──────────────────────────────────────────────────── */
+.rv-pagination-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0 1rem;
 }
 
-.toggle-all-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 16px 44px rgba(183, 28, 28, 0.18);
+.rv-pagination {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.toggle-all-btn:active {
+.rv-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    height: 42px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border-color, #e5e7eb);
+    background: #fff;
+    color: var(--gray-700, #374151);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    line-height: 1;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    user-select: none;
+}
+
+.rv-page-btn:hover:not(.active):not(.disabled) {
+    background: var(--red-50, #fef2f2);
+    border-color: var(--red-300, #fca5a5);
+    color: var(--red-700, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(183, 28, 28, 0.12);
+}
+
+.rv-page-btn.active {
+    background: var(--red-700, #b91c1c);
+    border-color: var(--red-700, #b91c1c);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(183, 28, 28, 0.28);
     transform: translateY(-1px);
+    cursor: default;
+}
+
+.rv-page-btn.disabled,
+.rv-page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+    box-shadow: none;
+}
+
+.rv-page-prev,
+.rv-page-next {
+    min-width: 42px;
+    font-size: 0.8rem;
+}
+
+.rv-page-dots {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 42px;
+    color: var(--gray-400, #9ca3af);
+    font-size: 1rem;
+    letter-spacing: 1px;
+    user-select: none;
+}
+
+@media (max-width: 480px) {
+    .rv-pagination {
+        gap: 4px;
+    }
+
+    .rv-page-btn {
+        min-width: 36px;
+        height: 36px;
+        font-size: 0.82rem;
+        border-radius: 8px;
+        padding: 0 7px;
+    }
+
+    .rv-page-dots {
+        min-width: 28px;
+        height: 36px;
+    }
 }
 
 .type-list {

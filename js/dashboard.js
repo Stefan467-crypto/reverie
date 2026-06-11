@@ -1340,25 +1340,42 @@ function renderProperties(items, adminMode) {
   }
   items = [...items].sort((a, b) => _tsToMs(b.createdAt) - _tsToMs(a.createdAt));
 
-  items.forEach(p => {
-    const st = normalizeStatus(p.status);
-    const stLabel = translateStatus(st);   // localized overlay text
-    const img = p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "../images/img1.png";
-    const agentName = adminMode ? getUserDisplayName(p.agentId, "—") : "";
-    const locationDisp = formatLocation(p.region || "");
-    const typeDisp = translatePropertyTypeRaw(p.propertyType || "");
-    const txLabel = p.transactionType === "rent" ? t("dash.rent_opt") : t("dash.sale_opt");
-    const txClass = p.transactionType === "rent" ? "text-bg-warning" : "text-bg-danger";
-    const noTitle = t("dash.no_title");
+  const DASH_PER_PAGE = 12;
+  const paginationKey = adminMode ? "all" : "my";
+  if (!window._dashPages) window._dashPages = {};
+  if (!window._dashPages[paginationKey]) window._dashPages[paginationKey] = 1;
 
+  const totalItems = items.length;
+  const totalPages = Math.ceil(totalItems / DASH_PER_PAGE);
+  let currentPage = Math.min(window._dashPages[paginationKey], Math.max(1, totalPages));
+  window._dashPages[paginationKey] = currentPage;
 
-    const displayTitle = (p.transactionType && p.propertyType && p.region)
-      ? generateTitle(p.transactionType, p.propertyType, p.region)
-      : (p.title || noTitle);
+  function getPageItems() {
+    const start = (currentPage - 1) * DASH_PER_PAGE;
+    return items.slice(start, start + DASH_PER_PAGE);
+  }
 
-    const col = document.createElement("div");
-    col.className = "prop-col";
-    col.innerHTML = `
+  function renderPage() {
+    grid.innerHTML = "";
+
+    getPageItems().forEach(p => {
+      const st = normalizeStatus(p.status);
+      const stLabel = translateStatus(st);
+      const img = p.mainImage || (Array.isArray(p.images) ? p.images[0] : "") || "../images/img1.png";
+      const agentName = adminMode ? getUserDisplayName(p.agentId, "—") : "";
+      const locationDisp = formatLocation(p.region || "");
+      const typeDisp = translatePropertyTypeRaw(p.propertyType || "");
+      const txLabel = p.transactionType === "rent" ? t("dash.rent_opt") : t("dash.sale_opt");
+      const txClass = p.transactionType === "rent" ? "text-bg-warning" : "text-bg-danger";
+      const noTitle = t("dash.no_title");
+
+      const displayTitle = (p.transactionType && p.propertyType && p.region)
+        ? generateTitle(p.transactionType, p.propertyType, p.region)
+        : (p.title || noTitle);
+
+      const col = document.createElement("div");
+      col.className = "prop-col";
+      col.innerHTML = `
 <div class="card shadow-sm h-100 prop-card" data-status="${esc(st)}">
   <div class="prop-img-wrap">
     <img src="${esc(img)}" alt="${esc(displayTitle)}" loading="lazy">
@@ -1384,35 +1401,113 @@ function renderProperties(items, adminMode) {
     </div>
   </div>
 </div>`;
-    grid.appendChild(col);
-  });
+      grid.appendChild(col);
+    });
 
-  grid.querySelectorAll("[data-del]").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.getAttribute("data-del");
-      if (!id || !confirm(t("dash.confirm_delete_prop"))) return;
-      try {
-        await deleteDoc(doc(db, "properties", id));
-        if (!adminMode) setMyMsg(t("dash.msg_deleted"), true);
-        await loadMyProperties();
-        if (isAdmin) await loadAllProperties();
-      } catch (e) {
-        console.error(e);
-        const msg = t("dash.err_delete_prop");
-        if (!adminMode) setMyMsg(msg, false); else alert(msg);
+    // Attach button listeners
+    grid.querySelectorAll("[data-del]").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-del");
+        if (!id || !confirm(t("dash.confirm_delete_prop"))) return;
+        try {
+          await deleteDoc(doc(db, "properties", id));
+          if (!adminMode) setMyMsg(t("dash.msg_deleted"), true);
+          await loadMyProperties();
+          if (isAdmin) await loadAllProperties();
+        } catch (e) {
+          console.error(e);
+          const msg = t("dash.err_delete_prop");
+          if (!adminMode) setMyMsg(msg, false); else alert(msg);
+        }
+      });
+    });
+    grid.querySelectorAll("[data-edit]").forEach(btn => {
+      btn.addEventListener("click", () => openEditModal(btn.getAttribute("data-edit"), adminMode));
+    });
+    grid.querySelectorAll("[data-transfer]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.getAttribute("data-transfer");
+        if (!id || !isAdmin) return;
+        openPropertyTransferModal(id);
+      });
+    });
+
+    // Render pagination
+    renderDashPagination(totalItems, paginationKey, adminMode, grid);
+  }
+
+  renderPage();
+
+  function renderDashPagination(total, key, adminMode, grid) {
+    const existingPag = grid.parentElement?.querySelector(`.rv-pagination-wrap[data-pag="${key}"]`);
+    if (existingPag) existingPag.remove();
+
+    const wrap = document.createElement("div");
+    wrap.className = "rv-pagination-wrap";
+    wrap.dataset.pag = key;
+    grid.insertAdjacentElement("afterend", wrap);
+
+    const totalPages = Math.ceil(total / DASH_PER_PAGE);
+    if (totalPages <= 1) return;
+
+    const nav = document.createElement("nav");
+    nav.className = "rv-pagination";
+
+    function getPageNumbers(cur, tp) {
+      if (tp <= 5) return Array.from({ length: tp }, (_, i) => i + 1);
+      const pages = [];
+      if (cur <= 3) {
+        pages.push(1, 2, 3);
+        if (cur === 3) pages.push(4);
+        pages.push("...", tp - 1, tp);
+      } else if (cur >= tp - 2) {
+        pages.push(1, 2, "...");
+        if (cur === tp - 2) pages.push(tp - 3);
+        pages.push(tp - 2, tp - 1, tp);
+      } else {
+        pages.push(1, "...", cur - 1, cur, cur + 1, "...", tp);
+      }
+      const seen = new Set();
+      return pages.filter(p => { if (p === "...") return true; if (seen.has(p)) return false; seen.add(p); return true; });
+    }
+
+    const pageNums = getPageNumbers(currentPage, totalPages);
+
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "rv-page-btn rv-page-prev" + (currentPage === 1 ? " disabled" : "");
+    prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) { window._dashPages[key] = --currentPage; renderPage(); wrap.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+    });
+    nav.appendChild(prevBtn);
+
+    pageNums.forEach(p => {
+      if (p === "...") {
+        const el = document.createElement("span"); el.className = "rv-page-dots"; el.textContent = "···"; nav.appendChild(el);
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "rv-page-btn" + (p === currentPage ? " active" : "");
+        btn.textContent = p;
+        if (p === currentPage) btn.setAttribute("aria-current", "page");
+        btn.addEventListener("click", () => {
+          if (p !== currentPage) { window._dashPages[key] = currentPage = p; renderPage(); wrap.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+        });
+        nav.appendChild(btn);
       }
     });
-  });
-  grid.querySelectorAll("[data-edit]").forEach(btn => {
-    btn.addEventListener("click", () => openEditModal(btn.getAttribute("data-edit"), adminMode));
-  });
-  grid.querySelectorAll("[data-transfer]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-transfer");
-      if (!id || !isAdmin) return;
-      openPropertyTransferModal(id);
+
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "rv-page-btn rv-page-next" + (currentPage === totalPages ? " disabled" : "");
+    nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right"></i>`;
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener("click", () => {
+      if (currentPage < totalPages) { window._dashPages[key] = ++currentPage; renderPage(); wrap.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
     });
-  });
+    nav.appendChild(nextBtn);
+
+    wrap.appendChild(nav);
+  }
 }
 
 

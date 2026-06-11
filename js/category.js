@@ -649,24 +649,117 @@ async function initPropertyGrid() {
 
   let sortMode = "popular";
   let originalOrder = [];
-  const INITIAL_VISIBLE = 6;
-  let isExpanded = false;
   let noFilterResultsEl = null;
 
   const styleEl = document.createElement("style");
-  styleEl.textContent = ".apart-hidden{display:none!important}.toggle-all-hidden{display:none!important}";
+  styleEl.textContent = ".apart-hidden{display:none!important}";
   document.head.appendChild(styleEl);
-
-  const toggleAllBtn = document.createElement("button");
-  toggleAllBtn.className = "btn btn-outline-danger mt-4 d-block mx-auto toggle-all-btn toggle-all-hidden";
-  grid.insertAdjacentElement("afterend", toggleAllBtn);
-
-  toggleAllBtn.addEventListener("click", () => { isExpanded = !isExpanded; applyVisibilityLimit(); });
 
   const onFilterChange = debounce(applyFilters, 120);
   const ddType = createDynamicDropdown("typeDropdown", onFilterChange);
   const ddRooms = createDynamicDropdown("dataRooms", onFilterChange);
   const ddRaions = createDynamicDropdown("raionsDropdown", onFilterChange);
+
+  // ── Pagination state
+  const ITEMS_PER_PAGE = 12;
+  let currentPage = 1;
+  let filteredItems = [];
+
+  function renderPagination(totalItems, container) {
+    if (!container) return;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    container.innerHTML = "";
+    if (totalPages <= 1) return;
+
+    const nav = document.createElement("nav");
+    nav.className = "rv-pagination";
+    nav.setAttribute("aria-label", "Pagini");
+
+    function getPageNumbers(cur, total) {
+      if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
+      const pages = [];
+      if (cur <= 3) {
+        pages.push(1, 2, 3);
+        if (cur === 3) pages.push(4);
+        pages.push("...", total - 1, total);
+      } else if (cur >= total - 2) {
+        pages.push(1, 2, "...");
+        if (cur === total - 2) pages.push(total - 3);
+        pages.push(total - 2, total - 1, total);
+      } else {
+        pages.push(1, "...", cur - 1, cur, cur + 1, "...", total);
+      }
+      // Deduplicate while preserving order
+      const seen = new Set();
+      return pages.filter(p => {
+        if (p === "...") return true;
+        if (seen.has(p)) return false;
+        seen.add(p); return true;
+      });
+    }
+
+    const pageNums = getPageNumbers(currentPage, totalPages);
+
+    // Prev button
+    const prevBtn = document.createElement("button");
+    prevBtn.className = "rv-page-btn rv-page-prev" + (currentPage === 1 ? " disabled" : "");
+    prevBtn.innerHTML = `<i class="fa-solid fa-chevron-left"></i>`;
+    prevBtn.setAttribute("aria-label", "Pagina anterioară");
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.addEventListener("click", () => { if (currentPage > 1) { currentPage--; applyPageSlice(); renderPagination(totalItems, container); scrollToGrid(); } });
+    nav.appendChild(prevBtn);
+
+    pageNums.forEach(p => {
+      if (p === "...") {
+        const el = document.createElement("span");
+        el.className = "rv-page-dots";
+        el.textContent = "···";
+        nav.appendChild(el);
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "rv-page-btn" + (p === currentPage ? " active" : "");
+        btn.textContent = p;
+        btn.setAttribute("aria-label", `Pagina ${p}`);
+        if (p === currentPage) btn.setAttribute("aria-current", "page");
+        btn.addEventListener("click", () => { if (p !== currentPage) { currentPage = p; applyPageSlice(); renderPagination(totalItems, container); scrollToGrid(); } });
+        nav.appendChild(btn);
+      }
+    });
+
+    // Next button
+    const nextBtn = document.createElement("button");
+    nextBtn.className = "rv-page-btn rv-page-next" + (currentPage === totalPages ? " disabled" : "");
+    nextBtn.innerHTML = `<i class="fa-solid fa-chevron-right"></i>`;
+    nextBtn.setAttribute("aria-label", "Pagina următoare");
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.addEventListener("click", () => { if (currentPage < totalPages) { currentPage++; applyPageSlice(); renderPagination(totalItems, container); scrollToGrid(); } });
+    nav.appendChild(nextBtn);
+
+    container.appendChild(nav);
+  }
+
+  function scrollToGrid() {
+    const section = document.getElementById("oferte");
+    if (section) {
+      const top = section.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }
+  }
+
+  let paginationContainer = document.createElement("div");
+  paginationContainer.className = "rv-pagination-wrap";
+  grid.insertAdjacentElement("afterend", paginationContainer);
+
+  function applyPageSlice() {
+    const allCols = Array.from(grid.children).filter(c => !c.classList.contains("no-results-msg"));
+    allCols.forEach(c => c.classList.remove("apart-hidden"));
+    const visible = allCols.filter(c => c.style.display !== "none");
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    visible.forEach((col, i) => {
+      col.classList.toggle("apart-hidden", i < start || i >= end);
+    });
+  }
 
   function refreshStaticLabels() {
 
@@ -697,10 +790,6 @@ async function initPropertyGrid() {
       const p2 = noFilterResultsEl.querySelector("p:last-of-type");
       if (p1) p1.textContent = t("offers.no_results_title");
       if (p2) p2.textContent = t("offers.no_results_sub");
-    }
-
-    if (!toggleAllBtn.classList.contains("toggle-all-hidden")) {
-      toggleAllBtn.textContent = isExpanded ? t("offers.hide_all") : t("offers.see_all");
     }
 
     const total = resultsCount?.dataset.total;
@@ -849,27 +938,15 @@ async function initPropertyGrid() {
         grid.appendChild(noFilterResultsEl);
       }
       noFilterResultsEl.style.display = "";
-      toggleAllBtn.classList.add("toggle-all-hidden");
+      renderPagination(0, paginationContainer);
       if (resultsCount) { resultsCount.textContent = t("offers.showing", { count: 0 }); resultsCount.dataset.total = "0"; }
       return;
     }
     if (noFilterResultsEl) noFilterResultsEl.style.display = "none";
 
-    if (total <= INITIAL_VISIBLE) {
-      toggleAllBtn.classList.add("toggle-all-hidden");
-      if (resultsCount) { resultsCount.textContent = t("offers.showing", { count: total }); resultsCount.dataset.total = String(total); }
-      return;
-    }
-
-    toggleAllBtn.classList.remove("toggle-all-hidden");
-    if (isExpanded) {
-      toggleAllBtn.textContent = t("offers.hide_all");
-      if (resultsCount) { resultsCount.textContent = t("offers.showing", { count: total }); resultsCount.dataset.total = String(total); }
-    } else {
-      visible.forEach((col, i) => { if (i >= INITIAL_VISIBLE) col.classList.add("apart-hidden"); });
-      toggleAllBtn.textContent = t("offers.see_all");
-      if (resultsCount) { resultsCount.textContent = t("offers.showing", { count: INITIAL_VISIBLE }); resultsCount.dataset.total = String(INITIAL_VISIBLE); }
-    }
+    applyPageSlice();
+    renderPagination(total, paginationContainer);
+    if (resultsCount) { resultsCount.textContent = t("offers.showing", { count: total }); resultsCount.dataset.total = String(total); }
   }
 
   function matchesLocation(regionParts, selectedLoc) {
@@ -959,7 +1036,7 @@ async function initPropertyGrid() {
     ddType?.setAvailability(possibleTypes);
     ddRooms?.setAvailability(possibleRooms);
     ddRaions?.setAvailability(possibleLoc);
-    isExpanded = false;
+    currentPage = 1;
     applySort();
   }
 
